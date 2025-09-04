@@ -8,6 +8,10 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
+import java.util.List;
+
+@NamedQuery(name = "Room.findByName",
+        query = "SELECT r FROM Room r WHERE r.name = :name")
 
 @Entity
 @Data
@@ -23,7 +27,10 @@ public class Room {
     private Long id;
 
     @NotEmpty
-    @Column(name = "room_name", nullable = false, unique = true, length = 100)
+    @Column(name = "name", nullable = false, unique = true, length = 100)
     private String name;
+
+    @OneToMany(mappedBy = "room", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Lesson> lessons;
 
 }
