@@ -35,8 +35,9 @@ public class Lesson implements Serializable {
     @Column(length = 100)
     private String teacher;
 
-    @Column(length = 50)
-    private String room;
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
 
     @Enumerated(EnumType.STRING)
     @NotNull
@@ -50,4 +51,8 @@ public class Lesson implements Serializable {
     @NotNull
     @Column(name = "end_time", nullable = false)
     private LocalTime endTime;
+
+    @ManyToOne
+    @JoinColumn(name = "room_id")
+    private Room room;
 }
