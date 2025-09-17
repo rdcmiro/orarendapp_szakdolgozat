@@ -1,5 +1,7 @@
 package com.miroslav.orarend.serviceImpl;
 
+import com.miroslav.orarend.dto.RoomInputDTO;
+import com.miroslav.orarend.mapper.RoomMapper;
 import com.miroslav.orarend.pojo.Room;
 import com.miroslav.orarend.repository.RoomRepository;
 import com.miroslav.orarend.service.RoomService;
@@ -16,29 +18,21 @@ public class RoomServiceImpl implements RoomService {
 
     private final RoomRepository roomRepository;
 
-    public RoomServiceImpl(RoomValidator validator, RoomRepository roomRepository) {
+    private final RoomMapper roomMapper;
+
+    public RoomServiceImpl(RoomValidator validator, RoomRepository roomRepository, RoomMapper roomMapper) {
         this.validator = validator;
         this.roomRepository = roomRepository;
+        this.roomMapper = roomMapper;
     }
 
     @Override
-    public ResponseEntity<String> createRoom(Map<String, String> roomData) {
-        boolean roomNumber = validator.validateRoomMap(roomData) &&
-                !validator.doesRoomExist(roomData.get("name"));
-        if(!roomNumber){
+    public ResponseEntity<String> createRoom(RoomInputDTO roomInputDTO) {
+        Room room = roomMapper.toEntity(roomInputDTO);
+        if(validator.doesRoomExist(room)){
             return ResponseEntity.badRequest().body("Invalid room data or room already exists");
         }
-        Room inputRoom = createRoomFromMap(roomData);
-        roomRepository.save(inputRoom);
+        roomRepository.save(room);
         return ResponseEntity.ok("Room created successfully");
-    }
-    private Room createRoomFromMap(Map<String, String> roomData) {
-        Room room = new Room();
-        String name = roomData.get("name");
-        if (name == null || name.isEmpty()) {
-            throw new IllegalArgumentException("Room name is missing or empty");
-        }
-        room.setName(name);
-        return room;
     }
 }

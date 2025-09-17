@@ -1,5 +1,6 @@
 package com.miroslav.orarend.pojo;
 
+import com.miroslav.orarend.constants.DayOfWeek;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -10,7 +11,6 @@ import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
 import java.io.Serializable;
-import java.time.DayOfWeek;
 import java.time.LocalTime;
 
 @Entity

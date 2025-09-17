@@ -1,5 +1,7 @@
 package com.miroslav.orarend.serviceImpl;
 
+import com.miroslav.orarend.dto.UserInputDTO;
+import com.miroslav.orarend.mapper.UserMapper;
 import com.miroslav.orarend.pojo.User;
 import com.miroslav.orarend.repository.UserRepository;
 import com.miroslav.orarend.service.UserService;
@@ -20,23 +22,25 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
 
-    public UserServiceImpl(UserValidator userValidator, UserRepository userRepository) {
+    private final UserMapper userMapper;
+
+    public UserServiceImpl(UserValidator userValidator, UserRepository userRepository, UserMapper userMapper) {
         this.userValidator = userValidator;
         this.userRepository = userRepository;
+        this.userMapper = userMapper;
     }
 
     @Override
-    public ResponseEntity<String> signUp(Map<String, String> userData) {
-        if (userValidator.validateSignUpMap(userData)) {
-            User user = userRepository.findByEmail(userData.get("email"));
-            if (user == null) {
-                userRepository.save(createUserFromMap(userData));
-                return new ResponseEntity<>("Successfully registered", HttpStatus.OK);
-            } else {
-                return new ResponseEntity<>("Already Registered", HttpStatus.BAD_REQUEST);
-            }
+    public ResponseEntity<String> signUp(UserInputDTO userInputDTO) {
+        User user = userMapper.toEntity(userInputDTO);
+        if(userRepository.existsByEmail(userInputDTO.getEmail())){
+            return new ResponseEntity<>("Email has already been registered", HttpStatus.CONFLICT);
         }
-        return new ResponseEntity<>("Invalid Data", HttpStatus.BAD_REQUEST);
+        if (userRepository.existsByUsername(userInputDTO.getUsername())) {
+            return new ResponseEntity<>("A user with the same username has already been registered", HttpStatus.CONFLICT);
+        }
+        userRepository.save(user);
+        return new ResponseEntity<>("User registered successfully", HttpStatus.OK);
     }
 
     private User createUserFromMap(Map<String, String> userData) {

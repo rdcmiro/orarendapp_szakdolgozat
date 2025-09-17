@@ -1,5 +1,6 @@
 package com.miroslav.orarend.resource;
 
+import com.miroslav.orarend.dto.UserInputDTO;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -11,6 +12,6 @@ import java.util.Map;
 public interface UserResource {
 
     @PostMapping("/signup")
-    ResponseEntity<String> signUp(@RequestBody Map<String, String> userData);
+    ResponseEntity<String> signUp(@RequestBody UserInputDTO userInputDTO);
 
 }

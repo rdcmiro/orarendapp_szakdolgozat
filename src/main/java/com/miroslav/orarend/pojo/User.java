@@ -1,6 +1,8 @@
 package com.miroslav.orarend.pojo;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotEmpty;
 import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
@@ -26,12 +28,16 @@ public class User implements Serializable {
     @Column(name = "id")
     private Long id;
 
+    @NotEmpty
     @Column(name = "username", length = 50)
     private String username;
 
+    @NotEmpty
     @Column(name = "password")
     private String password;
 
+    @NotEmpty
+    @Email
     @Column(name = "email")
     private String email;
 

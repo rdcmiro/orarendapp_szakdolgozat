@@ -1,5 +1,6 @@
 package com.miroslav.orarend.resource;
 
+import com.miroslav.orarend.dto.LessonInputDTO;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -11,6 +12,6 @@ import java.util.Map;
 public interface LessonResource {
 
     @PostMapping("/create")
-    ResponseEntity<String> createLesson(@RequestBody  Map<String, String> lessonData);
+    ResponseEntity<String> createLesson(@RequestBody LessonInputDTO lessonData);
 
 }

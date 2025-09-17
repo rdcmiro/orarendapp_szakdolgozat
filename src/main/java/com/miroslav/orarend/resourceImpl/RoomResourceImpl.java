@@ -1,5 +1,6 @@
 package com.miroslav.orarend.resourceImpl;
 
+import com.miroslav.orarend.dto.RoomInputDTO;
 import com.miroslav.orarend.resource.RoomResource;
 import com.miroslav.orarend.service.RoomService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,9 +16,9 @@ public class RoomResourceImpl implements RoomResource {
     private RoomService roomService;
 
     @Override
-    public ResponseEntity<String> createRoom(Map<String, String> roomData) {
+    public ResponseEntity<String> createRoom(RoomInputDTO roomInputDTO) {
         try{
-            return roomService.createRoom(roomData);
+            return roomService.createRoom(roomInputDTO);
         }catch (Exception e){
             e.printStackTrace();
         }

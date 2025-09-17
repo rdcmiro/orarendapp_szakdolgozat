@@ -1,5 +1,6 @@
 package com.miroslav.orarend.serviceImpl.validator;
 
+import com.miroslav.orarend.pojo.Room;
 import com.miroslav.orarend.repository.RoomRepository;
 import org.springframework.stereotype.Component;
 
@@ -17,7 +18,7 @@ public class RoomValidator {
         return roomData.containsKey("name");
     }
 
-    public boolean doesRoomExist(String roomName) {
-        return roomRepository.findByName(roomName) != null;
+    public boolean doesRoomExist(Room room) {
+        return roomRepository.existsByName(room.getName());
     }
 }

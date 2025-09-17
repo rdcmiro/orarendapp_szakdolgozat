@@ -7,4 +7,8 @@ import org.springframework.data.repository.query.Param;
 public interface UserRepository extends JpaRepository<User, Long> {
 
     User findByEmail(@Param("email") String email);
+
+    boolean existsByEmail(@Param("email") String email);
+
+    boolean existsByUsername(@Param("username") String username);
 }

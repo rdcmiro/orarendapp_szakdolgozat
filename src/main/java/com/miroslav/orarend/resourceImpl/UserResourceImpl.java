@@ -1,5 +1,6 @@
 package com.miroslav.orarend.resourceImpl;
 
+import com.miroslav.orarend.dto.UserInputDTO;
 import com.miroslav.orarend.resource.UserResource;
 import com.miroslav.orarend.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,9 +17,9 @@ public class UserResourceImpl implements UserResource {
     private UserService userService;
 
     @Override
-    public ResponseEntity<String> signUp(Map<String, String> userData) {
+    public ResponseEntity<String> signUp(UserInputDTO userInputDTO) {
         try{
-            return userService.signUp(userData);
+            return userService.signUp(userInputDTO);
         }catch (Exception e){
             e.printStackTrace();
         }

@@ -15,10 +15,6 @@ public class LessonValidator {
         this.repository = repository;
     }
 
-    public boolean validateLessonMap(Map<String,String> lessonMap){
-        return lessonMap.containsKey("className") && lessonMap.containsKey("dayOfWeek")
-                && lessonMap.containsKey("startTime") && lessonMap.containsKey("endTime");
-    }
 
     public boolean doesLessonAlreadyExist(LocalTime startTime, LocalTime endTime) {
         return repository.existsByStartTimeAndEndTime(startTime, endTime);

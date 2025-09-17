@@ -1,5 +1,7 @@
 package com.miroslav.orarend.serviceImpl;
 
+import com.miroslav.orarend.dto.LessonInputDTO;
+import com.miroslav.orarend.mapper.LessonMapper;
 import com.miroslav.orarend.pojo.Lesson;
 import com.miroslav.orarend.repository.LessonRepository;
 import com.miroslav.orarend.service.LessonService;
@@ -17,33 +19,26 @@ public class LessonServiceImpl implements LessonService {
 
     private final LessonRepository repository;
 
-    private final LessonValidator validator;
+    private final LessonMapper mapper;
 
-    public LessonServiceImpl(LessonRepository repository, LessonValidator validator) {
+    public LessonServiceImpl(LessonRepository repository, LessonValidator validator, LessonMapper mapper) {
         this.repository = repository;
-        this.validator = validator;
+        this.mapper = mapper;
     }
 
     @Override
-    public ResponseEntity<String> createLesson(Map<String, String> lessonData) {
-        boolean validateLessonData = validator.validateLessonMap(lessonData);
-        if(validateLessonData){
-            Lesson inputLesson = createLessonFromMap(lessonData);
-            if(!validator.doesLessonAlreadyExist(inputLesson.getStartTime(),inputLesson.getEndTime())){
-                repository.save(inputLesson);
-                return new ResponseEntity<>("Sikeres mentés", HttpStatus.OK);
+    public ResponseEntity<String> createLesson(LessonInputDTO dto) {
+        Lesson input = mapper.toEntity(dto);
+        if(!doesLessonAlreadyExist(input.getStartTime(), input.getEndTime())) {
+            repository.save(input);
+            return new ResponseEntity<>("Lesson created", HttpStatus.CREATED);
             }
-            return new  ResponseEntity<>("Duplikált óra", HttpStatus.BAD_REQUEST);
+        else  {
+            return new ResponseEntity<>("Lesson already exists", HttpStatus.CONFLICT);
         }
-        return new ResponseEntity<>("Hibás input adat", HttpStatus.BAD_REQUEST);
     }
 
-    private Lesson createLessonFromMap(Map<String, String> lessonData) {
-        Lesson lesson = new Lesson();
-        lesson.setClassName(lessonData.get("className"));
-        lesson.setDayOfWeek(DayOfWeek.valueOf(lessonData.get("dayOfWeek")));
-        lesson.setStartTime(LocalTime.parse(lessonData.get("startTime")));
-        lesson.setEndTime(LocalTime.parse(lessonData.get("endTime")));
-        return lesson;
+    private boolean doesLessonAlreadyExist(LocalTime startTime, LocalTime endTime) {
+        return repository.existsByStartTimeAndEndTime(startTime, endTime);
     }
 }

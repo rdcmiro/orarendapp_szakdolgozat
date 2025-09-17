@@ -1,5 +1,6 @@
 package com.miroslav.orarend.service;
 
+import com.miroslav.orarend.dto.UserInputDTO;
 import org.springframework.http.ResponseEntity;
 
 import java.util.Map;
@@ -7,5 +8,5 @@ import java.util.Map;
 
 public interface UserService {
 
-    ResponseEntity<String> signUp(Map<String, String> userData);
+    ResponseEntity<String> signUp(UserInputDTO userInputDTO);
 }
