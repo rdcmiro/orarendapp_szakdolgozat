@@ -1,10 +1,10 @@
 package com.miroslav.orarend.resource;
 
 import com.miroslav.orarend.dto.LessonInputDTO;
+import com.miroslav.orarend.dto.LessonPatchDTO;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
@@ -13,5 +13,11 @@ public interface LessonResource {
 
     @PostMapping("/create")
     ResponseEntity<String> createLesson(@RequestBody LessonInputDTO lessonData);
+
+    @PutMapping("/update/{lessonId}")
+    ResponseEntity<String> updateLesson(@PathVariable Long lessonId, @Valid @RequestBody LessonInputDTO lessonData);
+
+    @PatchMapping("/patch/{lessonId}")
+    ResponseEntity<String> patchLesson(@PathVariable Long lessonId, @RequestBody LessonPatchDTO lessonData);
 
 }

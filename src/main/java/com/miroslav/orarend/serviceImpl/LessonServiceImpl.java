@@ -1,6 +1,7 @@
 package com.miroslav.orarend.serviceImpl;
 
 import com.miroslav.orarend.dto.LessonInputDTO;
+import com.miroslav.orarend.dto.LessonPatchDTO;
 import com.miroslav.orarend.mapper.LessonMapper;
 import com.miroslav.orarend.pojo.Lesson;
 import com.miroslav.orarend.repository.LessonRepository;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 public class LessonServiceImpl implements LessonService {
@@ -40,5 +42,50 @@ public class LessonServiceImpl implements LessonService {
 
     private boolean doesLessonAlreadyExist(LocalTime startTime, LocalTime endTime) {
         return repository.existsByStartTimeAndEndTime(startTime, endTime);
+    }
+
+    @Override
+    public ResponseEntity<String> updateLesson(Long lessonId, LessonInputDTO dto) {
+        Optional<Lesson> lesson = repository.findById(lessonId);
+
+        if(lesson.isEmpty()) {
+            return new ResponseEntity<>("Lesson not found", HttpStatus.NOT_FOUND);
+        }
+
+        Lesson lessonToUpdate = lesson.get();
+        lessonToUpdate.setClassName(dto.getClassName());
+        lessonToUpdate.setDayOfWeek(dto.getDayOfWeek());
+        lessonToUpdate.setStartTime(dto.getStartTime());
+        lessonToUpdate.setEndTime(dto.getEndTime());
+        repository.save(lessonToUpdate);
+        return new ResponseEntity<>("Lesson updated", HttpStatus.OK);
+    }
+
+    @Override
+    public ResponseEntity<String> patchLesson(Long lessonId, LessonPatchDTO dto) {
+        Optional<Lesson> lesson = repository.findById(lessonId);
+
+        if(lesson.isEmpty()) {
+            return new ResponseEntity<>("Lesson not found", HttpStatus.NOT_FOUND);
+        }
+
+        Lesson lessonToUpdate = lesson.get();
+        if(dto.getClassName() != null) {
+            lessonToUpdate.setClassName(dto.getClassName());
+        }
+        if(dto.getTeacher() != null) {
+            lessonToUpdate.setTeacher(dto.getTeacher());
+        }
+        if(dto.getDayOfWeek() != null) {
+            lessonToUpdate.setDayOfWeek(dto.getDayOfWeek());
+        }
+        if(dto.getStartTime() != null) {
+            lessonToUpdate.setStartTime(dto.getStartTime());
+        }
+        if(dto.getEndTime() != null) {
+            lessonToUpdate.setEndTime(dto.getEndTime());
+        }
+        repository.save(lessonToUpdate);
+        return new ResponseEntity<>("Lesson patched", HttpStatus.OK);
     }
 }
