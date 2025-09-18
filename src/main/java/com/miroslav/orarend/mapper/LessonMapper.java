@@ -1,6 +1,7 @@
 package com.miroslav.orarend.mapper;
 
 import com.miroslav.orarend.dto.LessonInputDTO;
+import com.miroslav.orarend.dto.LessonOutputDTO;
 import com.miroslav.orarend.pojo.Lesson;
 import org.mapstruct.Mapper;
 
@@ -8,6 +9,9 @@ import org.mapstruct.Mapper;
 public interface LessonMapper {
 
     Lesson toEntity(LessonInputDTO dto);
+
     LessonInputDTO toDto(Lesson entity);
+
+    LessonOutputDTO toOutputDto(Lesson entity);
 
 }

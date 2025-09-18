@@ -1,10 +1,12 @@
 package com.miroslav.orarend.resourceImpl;
 
 import com.miroslav.orarend.dto.RoomInputDTO;
+import com.miroslav.orarend.dto.RoomOutputDTO;
 import com.miroslav.orarend.dto.RoomPatchDTO;
 import com.miroslav.orarend.resource.RoomResource;
 import com.miroslav.orarend.service.RoomService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -40,6 +42,26 @@ public class RoomResourceImpl implements RoomResource {
     public ResponseEntity<String> patchRoom(Long roomId, RoomPatchDTO roomPatchDTO) {
         try{
             return roomService.patchRoom(roomId, roomPatchDTO);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return ResponseEntity.internalServerError().body("Error");
+    }
+
+    @Override
+    public ResponseEntity<RoomOutputDTO> getRoom(Long roomId) {
+        try {
+            return roomService.getRoom(roomId);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @Override
+    public ResponseEntity<String> deleteRoom(Long roomId) {
+        try {
+            return roomService.deleteRoom(roomId);
         } catch (Exception e) {
             e.printStackTrace();
         }

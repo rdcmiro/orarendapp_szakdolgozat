@@ -1,12 +1,14 @@
 package com.miroslav.orarend.serviceImpl;
 
 import com.miroslav.orarend.dto.RoomInputDTO;
+import com.miroslav.orarend.dto.RoomOutputDTO;
 import com.miroslav.orarend.dto.RoomPatchDTO;
 import com.miroslav.orarend.mapper.RoomMapper;
 import com.miroslav.orarend.pojo.Room;
 import com.miroslav.orarend.repository.RoomRepository;
 import com.miroslav.orarend.service.RoomService;
 import com.miroslav.orarend.serviceImpl.validator.RoomValidator;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -30,7 +32,7 @@ public class RoomServiceImpl implements RoomService {
     @Override
     public ResponseEntity<String> createRoom(RoomInputDTO roomInputDTO) {
         Room room = roomMapper.toEntity(roomInputDTO);
-        if(validator.doesRoomExist(room)){
+        if (validator.doesRoomExist(room)) {
             return ResponseEntity.badRequest().body("Invalid room data or room already exists");
         }
         roomRepository.save(room);
@@ -41,7 +43,7 @@ public class RoomServiceImpl implements RoomService {
     public ResponseEntity<String> updateRoom(Long roomId, RoomInputDTO roomInputDTO) {
         Optional<Room> optionalRoom = roomRepository.findById(roomId);
 
-        if(optionalRoom.isEmpty()){
+        if (optionalRoom.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
 
@@ -54,15 +56,35 @@ public class RoomServiceImpl implements RoomService {
     @Override
     public ResponseEntity<String> patchRoom(Long roomId, RoomPatchDTO patchDTO) {
         Optional<Room> optionalRoom = roomRepository.findById(roomId);
-        if(optionalRoom.isEmpty()){
+        if (optionalRoom.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
 
         Room existingRoom = optionalRoom.get();
-        if(patchDTO.getName() != null){
+        if (patchDTO.getName() != null) {
             existingRoom.setName(patchDTO.getName());
         }
         roomRepository.save(existingRoom);
         return ResponseEntity.ok("Room patched successfully");
+    }
+
+    @Override
+    public ResponseEntity<RoomOutputDTO> getRoom(Long roomId) {
+        Optional<Room> optionalRoom = roomRepository.findById(roomId);
+        if (optionalRoom.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        RoomOutputDTO outputDTO = roomMapper.toOutputDto(optionalRoom.get());
+        return ResponseEntity.ok(outputDTO);
+    }
+
+    @Override
+    public ResponseEntity<String> deleteRoom(Long roomId) {
+        try {
+            roomRepository.deleteById(roomId);
+            return ResponseEntity.ok("Room deleted successfully");
+        } catch (EmptyResultDataAccessException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 }

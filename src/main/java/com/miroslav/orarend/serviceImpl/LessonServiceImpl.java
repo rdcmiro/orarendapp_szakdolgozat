@@ -1,12 +1,14 @@
 package com.miroslav.orarend.serviceImpl;
 
 import com.miroslav.orarend.dto.LessonInputDTO;
+import com.miroslav.orarend.dto.LessonOutputDTO;
 import com.miroslav.orarend.dto.LessonPatchDTO;
 import com.miroslav.orarend.mapper.LessonMapper;
 import com.miroslav.orarend.pojo.Lesson;
 import com.miroslav.orarend.repository.LessonRepository;
 import com.miroslav.orarend.service.LessonService;
 import com.miroslav.orarend.serviceImpl.validator.LessonValidator;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -22,10 +24,12 @@ public class LessonServiceImpl implements LessonService {
     private final LessonRepository repository;
 
     private final LessonMapper mapper;
+    private final LessonMapper lessonMapper;
 
-    public LessonServiceImpl(LessonRepository repository, LessonValidator validator, LessonMapper mapper) {
+    public LessonServiceImpl(LessonRepository repository, LessonMapper mapper, LessonMapper lessonMapper) {
         this.repository = repository;
         this.mapper = mapper;
+        this.lessonMapper = lessonMapper;
     }
 
     @Override
@@ -88,4 +92,24 @@ public class LessonServiceImpl implements LessonService {
         repository.save(lessonToUpdate);
         return new ResponseEntity<>("Lesson patched", HttpStatus.OK);
     }
+
+    @Override
+    public ResponseEntity<LessonOutputDTO> getLesson(Long lessonId) {
+        Optional<Lesson> lesson = repository.findById(lessonId);
+        if(lesson.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        LessonOutputDTO lessonOutputDTO = lessonMapper.toOutputDto(lesson.get());
+        return new ResponseEntity<>(lessonOutputDTO, HttpStatus.OK);
+    }
+
+    public ResponseEntity<String> deleteLesson(Long lessonId) {
+        try {
+            repository.deleteById(lessonId);
+            return ResponseEntity.ok("Lesson deleted");
+        } catch (EmptyResultDataAccessException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Lesson not found");
+        }
+    }
+
 }

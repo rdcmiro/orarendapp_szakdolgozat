@@ -1,6 +1,7 @@
 package com.miroslav.orarend.serviceImpl;
 
 import com.miroslav.orarend.dto.UserInputDTO;
+import com.miroslav.orarend.dto.UserOutputDTO;
 import com.miroslav.orarend.dto.UserPatchDTO;
 import com.miroslav.orarend.mapper.UserMapper;
 import com.miroslav.orarend.pojo.User;
@@ -79,6 +80,16 @@ public class UserServiceImpl implements UserService {
         }
         userRepository.save(user);
         return new ResponseEntity<>("User patched successfully", HttpStatus.OK);
+    }
+
+    @Override
+    public ResponseEntity<UserOutputDTO> getUser(Long userId) {
+        Optional<User> optionalUser = userRepository.findById(userId);
+        if(optionalUser.isEmpty()){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        UserOutputDTO userOutputDTO = userMapper.toOutputDTO(optionalUser.get());
+        return new ResponseEntity<>(userOutputDTO, HttpStatus.OK);
     }
 
 }

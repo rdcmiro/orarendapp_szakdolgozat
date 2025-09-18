@@ -2,6 +2,7 @@ package com.miroslav.orarend.mapper;
 
 
 import com.miroslav.orarend.dto.RoomInputDTO;
+import com.miroslav.orarend.dto.RoomOutputDTO;
 import com.miroslav.orarend.pojo.Room;
 import org.mapstruct.Mapper;
 
@@ -9,5 +10,8 @@ import org.mapstruct.Mapper;
 public interface RoomMapper {
 
     Room toEntity(RoomInputDTO roomInputDTO);
+
     RoomInputDTO toDTO(Room room);
+
+    RoomOutputDTO toOutputDto(Room entity);
 }

@@ -2,6 +2,7 @@ package com.miroslav.orarend.resource;
 
 
 import com.miroslav.orarend.dto.RoomInputDTO;
+import com.miroslav.orarend.dto.RoomOutputDTO;
 import com.miroslav.orarend.dto.RoomPatchDTO;
 import com.miroslav.orarend.pojo.Room;
 import org.springframework.http.ResponseEntity;
@@ -21,4 +22,9 @@ public interface RoomResource {
     @PatchMapping("/patch/{lessonId}")
     ResponseEntity<String> patchRoom(@PathVariable Long lessonId, @RequestBody RoomPatchDTO roomPatchDTO);
 
+    @GetMapping("/getRoom/{roomId}")
+    ResponseEntity<RoomOutputDTO> getRoom(@PathVariable Long roomId);
+
+    @DeleteMapping("/deleteRoom/{roomId}")
+    ResponseEntity<String> deleteRoom(@PathVariable Long roomId);
 }

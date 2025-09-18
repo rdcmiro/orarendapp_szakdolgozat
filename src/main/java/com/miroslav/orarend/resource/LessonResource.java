@@ -1,6 +1,7 @@
 package com.miroslav.orarend.resource;
 
 import com.miroslav.orarend.dto.LessonInputDTO;
+import com.miroslav.orarend.dto.LessonOutputDTO;
 import com.miroslav.orarend.dto.LessonPatchDTO;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -19,5 +20,11 @@ public interface LessonResource {
 
     @PatchMapping("/patch/{lessonId}")
     ResponseEntity<String> patchLesson(@PathVariable Long lessonId, @RequestBody LessonPatchDTO lessonData);
+
+    @GetMapping("/get/{lessonId}")
+    ResponseEntity<LessonOutputDTO> getLesson(@PathVariable Long lessonId);
+
+    @DeleteMapping("/delete/{lessonId}")
+    ResponseEntity<String> deleteLesson(@PathVariable Long lessonId);
 
 }

@@ -1,6 +1,7 @@
 package com.miroslav.orarend.resourceImpl;
 
 import com.miroslav.orarend.dto.UserInputDTO;
+import com.miroslav.orarend.dto.UserOutputDTO;
 import com.miroslav.orarend.dto.UserPatchDTO;
 import com.miroslav.orarend.resource.UserResource;
 import com.miroslav.orarend.service.UserService;
@@ -48,5 +49,15 @@ public class UserResourceImpl implements UserResource {
             e.printStackTrace();
         }
         return new ResponseEntity<>("Error", HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @Override
+    public ResponseEntity<UserOutputDTO> getUser(Long userId) {
+        try {
+            return userService.getUser(userId);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

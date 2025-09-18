@@ -1,6 +1,7 @@
 package com.miroslav.orarend.resource;
 
 import com.miroslav.orarend.dto.UserInputDTO;
+import com.miroslav.orarend.dto.UserOutputDTO;
 import com.miroslav.orarend.dto.UserPatchDTO;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -19,5 +20,8 @@ public interface UserResource {
 
     @PatchMapping("/patch/{userId}")
     ResponseEntity<String> patchUser(@PathVariable Long userId, @RequestBody UserPatchDTO userPatchDTO);
+
+    @GetMapping("/getUser/{userId}")
+    ResponseEntity<UserOutputDTO> getUser(@PathVariable Long userId);
 
 }
