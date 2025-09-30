@@ -7,13 +7,8 @@ import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
-
 @RequestMapping("/users")
 public interface UserResource {
-
-    @PostMapping("/signup")
-    ResponseEntity<String> signUp(@RequestBody UserInputDTO userInputDTO);
 
     @PutMapping("/update/{userId}")
     ResponseEntity<String> updateUser(@PathVariable Long userId, @Valid @RequestBody UserInputDTO userInputDTO);

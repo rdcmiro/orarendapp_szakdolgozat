@@ -5,17 +5,17 @@ import com.miroslav.orarend.dto.LessonOutputDTO;
 import com.miroslav.orarend.dto.LessonPatchDTO;
 import com.miroslav.orarend.mapper.LessonMapper;
 import com.miroslav.orarend.pojo.Lesson;
+import com.miroslav.orarend.pojo.User;
 import com.miroslav.orarend.repository.LessonRepository;
+import com.miroslav.orarend.repository.UserRepository;
 import com.miroslav.orarend.service.LessonService;
-import com.miroslav.orarend.serviceImpl.validator.LessonValidator;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import java.time.DayOfWeek;
 import java.time.LocalTime;
-import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -25,16 +25,26 @@ public class LessonServiceImpl implements LessonService {
 
     private final LessonMapper mapper;
     private final LessonMapper lessonMapper;
+    private final UserRepository userRepository;
 
-    public LessonServiceImpl(LessonRepository repository, LessonMapper mapper, LessonMapper lessonMapper) {
+    public LessonServiceImpl(LessonRepository repository, LessonMapper mapper, LessonMapper lessonMapper, UserRepository userRepository) {
         this.repository = repository;
         this.mapper = mapper;
         this.lessonMapper = lessonMapper;
+        this.userRepository = userRepository;
     }
 
     @Override
     public ResponseEntity<String> createLesson(LessonInputDTO dto) {
         Lesson input = mapper.toEntity(dto);
+
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        input.setUser(user);
+
         if(!doesLessonAlreadyExist(input.getStartTime(), input.getEndTime())) {
             repository.save(input);
             return new ResponseEntity<>("Lesson created", HttpStatus.CREATED);

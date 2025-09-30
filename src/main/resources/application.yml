@@ -8,6 +8,18 @@ spring:
     username: root
     password: admin
 
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: orarendalkalmazasszakdolgozat@gmail.com
+    password: ekly xcrj kdzo kqab
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
   jpa:
     show-sql: true
     hibernate:
@@ -24,3 +36,4 @@ logging:
   level:
     org.springframework.security: DEBUG
     org.springframework.web: DEBUG
+    org.springframework.mail: DEBUG

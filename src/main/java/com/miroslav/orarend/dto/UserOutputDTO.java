@@ -7,7 +7,5 @@ public class UserOutputDTO {
 
     private String username;
 
-    private String password;
-
     private String email;
 }

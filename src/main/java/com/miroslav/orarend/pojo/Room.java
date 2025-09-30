@@ -30,6 +30,10 @@ public class Room {
     @Column(name = "name", nullable = false, unique = true, length = 100)
     private String name;
 
+    @ManyToOne
+    @JoinColumn(name = "created_by_id")
+    private User createdBy;
+
     @OneToMany(mappedBy = "room", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Lesson> lessons;
 
