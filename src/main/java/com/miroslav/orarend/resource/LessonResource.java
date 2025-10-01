@@ -1,13 +1,11 @@
 package com.miroslav.orarend.resource;
 
-import com.miroslav.orarend.dto.LessonInputDTO;
-import com.miroslav.orarend.dto.LessonOutputDTO;
-import com.miroslav.orarend.dto.LessonPatchDTO;
+import com.miroslav.orarend.dto.input.LessonInputDTO;
+import com.miroslav.orarend.dto.output.LessonOutputDTO;
+import com.miroslav.orarend.dto.patch.LessonPatchDTO;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Map;
 
 @RequestMapping("/lessons")
 public interface LessonResource {

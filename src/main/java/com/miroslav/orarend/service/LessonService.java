@@ -1,13 +1,10 @@
 package com.miroslav.orarend.service;
 
-import com.miroslav.orarend.dto.LessonInputDTO;
-import com.miroslav.orarend.dto.LessonOutputDTO;
-import com.miroslav.orarend.dto.LessonPatchDTO;
-import com.miroslav.orarend.dto.RoomOutputDTO;
+import com.miroslav.orarend.dto.input.LessonInputDTO;
+import com.miroslav.orarend.dto.output.LessonOutputDTO;
+import com.miroslav.orarend.dto.patch.LessonPatchDTO;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-
-import java.util.Map;
 
 @Service
 public interface LessonService {

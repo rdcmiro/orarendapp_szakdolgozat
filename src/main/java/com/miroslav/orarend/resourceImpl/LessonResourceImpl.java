@@ -1,8 +1,8 @@
 package com.miroslav.orarend.resourceImpl;
 
-import com.miroslav.orarend.dto.LessonInputDTO;
-import com.miroslav.orarend.dto.LessonOutputDTO;
-import com.miroslav.orarend.dto.LessonPatchDTO;
+import com.miroslav.orarend.dto.input.LessonInputDTO;
+import com.miroslav.orarend.dto.output.LessonOutputDTO;
+import com.miroslav.orarend.dto.patch.LessonPatchDTO;
 import com.miroslav.orarend.resource.LessonResource;
 import com.miroslav.orarend.service.LessonService;
 import org.springframework.beans.factory.annotation.Autowired;

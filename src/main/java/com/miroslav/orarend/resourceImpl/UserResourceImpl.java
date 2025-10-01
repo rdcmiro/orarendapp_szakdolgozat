@@ -1,8 +1,8 @@
 package com.miroslav.orarend.resourceImpl;
 
-import com.miroslav.orarend.dto.UserInputDTO;
-import com.miroslav.orarend.dto.UserOutputDTO;
-import com.miroslav.orarend.dto.UserPatchDTO;
+import com.miroslav.orarend.dto.input.UserInputDTO;
+import com.miroslav.orarend.dto.output.UserOutputDTO;
+import com.miroslav.orarend.dto.patch.UserPatchDTO;
 import com.miroslav.orarend.resource.UserResource;
 import com.miroslav.orarend.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;

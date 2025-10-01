@@ -1,6 +1,6 @@
 package com.miroslav.orarend.authentication;
 
-import com.miroslav.orarend.dto.UserInputDTO;
+import com.miroslav.orarend.dto.input.UserInputDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,8 +22,8 @@ public class AuthenticationResource {
         return ResponseEntity.ok(authenticationService.authenticate(request));
     }
 
-    @GetMapping("/hello")
-    public ResponseEntity<String> sayHello() {
-        return ResponseEntity.ok("Hello");
+    @PostMapping("/changePassword")
+    public ResponseEntity<AuthenticationResponse> changePassword(@RequestBody UserChangePasswordDTO inputDTO) {
+        return ResponseEntity.ok(authenticationService.changePassword(inputDTO));
     }
 }

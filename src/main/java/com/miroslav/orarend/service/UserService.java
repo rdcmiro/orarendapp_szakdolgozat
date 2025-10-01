@@ -1,8 +1,8 @@
 package com.miroslav.orarend.service;
 
-import com.miroslav.orarend.dto.UserInputDTO;
-import com.miroslav.orarend.dto.UserOutputDTO;
-import com.miroslav.orarend.dto.UserPatchDTO;
+import com.miroslav.orarend.dto.input.UserInputDTO;
+import com.miroslav.orarend.dto.output.UserOutputDTO;
+import com.miroslav.orarend.dto.patch.UserPatchDTO;
 import org.springframework.http.ResponseEntity;
 
 

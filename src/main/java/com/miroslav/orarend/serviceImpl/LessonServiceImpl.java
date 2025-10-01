@@ -1,8 +1,8 @@
 package com.miroslav.orarend.serviceImpl;
 
-import com.miroslav.orarend.dto.LessonInputDTO;
-import com.miroslav.orarend.dto.LessonOutputDTO;
-import com.miroslav.orarend.dto.LessonPatchDTO;
+import com.miroslav.orarend.dto.input.LessonInputDTO;
+import com.miroslav.orarend.dto.output.LessonOutputDTO;
+import com.miroslav.orarend.dto.patch.LessonPatchDTO;
 import com.miroslav.orarend.mapper.LessonMapper;
 import com.miroslav.orarend.pojo.Lesson;
 import com.miroslav.orarend.pojo.User;

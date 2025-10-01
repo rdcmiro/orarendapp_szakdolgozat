@@ -1,4 +1,4 @@
-package com.miroslav.orarend.dto;
+package com.miroslav.orarend.dto.output;
 
 import lombok.Data;
 

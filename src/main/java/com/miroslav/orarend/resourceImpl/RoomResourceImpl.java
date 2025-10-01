@@ -1,16 +1,14 @@
 package com.miroslav.orarend.resourceImpl;
 
-import com.miroslav.orarend.dto.RoomInputDTO;
-import com.miroslav.orarend.dto.RoomOutputDTO;
-import com.miroslav.orarend.dto.RoomPatchDTO;
+import com.miroslav.orarend.dto.input.RoomInputDTO;
+import com.miroslav.orarend.dto.output.RoomOutputDTO;
+import com.miroslav.orarend.dto.patch.RoomPatchDTO;
 import com.miroslav.orarend.resource.RoomResource;
 import com.miroslav.orarend.service.RoomService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.Map;
 
 @RestController
 public class RoomResourceImpl implements RoomResource {

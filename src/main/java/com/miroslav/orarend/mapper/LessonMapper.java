@@ -1,7 +1,7 @@
 package com.miroslav.orarend.mapper;
 
-import com.miroslav.orarend.dto.LessonInputDTO;
-import com.miroslav.orarend.dto.LessonOutputDTO;
+import com.miroslav.orarend.dto.input.LessonInputDTO;
+import com.miroslav.orarend.dto.output.LessonOutputDTO;
 import com.miroslav.orarend.pojo.Lesson;
 import org.mapstruct.Mapper;
 

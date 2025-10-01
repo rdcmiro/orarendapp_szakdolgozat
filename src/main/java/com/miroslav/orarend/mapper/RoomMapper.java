@@ -1,8 +1,8 @@
 package com.miroslav.orarend.mapper;
 
 
-import com.miroslav.orarend.dto.RoomInputDTO;
-import com.miroslav.orarend.dto.RoomOutputDTO;
+import com.miroslav.orarend.dto.input.RoomInputDTO;
+import com.miroslav.orarend.dto.output.RoomOutputDTO;
 import com.miroslav.orarend.pojo.Room;
 import org.mapstruct.Mapper;
 

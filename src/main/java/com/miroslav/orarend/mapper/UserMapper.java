@@ -1,8 +1,8 @@
 package com.miroslav.orarend.mapper;
 
 
-import com.miroslav.orarend.dto.UserInputDTO;
-import com.miroslav.orarend.dto.UserOutputDTO;
+import com.miroslav.orarend.dto.input.UserInputDTO;
+import com.miroslav.orarend.dto.output.UserOutputDTO;
 import com.miroslav.orarend.pojo.User;
 import org.mapstruct.Mapper;
 

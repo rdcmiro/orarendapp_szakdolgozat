@@ -1,4 +1,4 @@
-package com.miroslav.orarend.dto;
+package com.miroslav.orarend.dto.patch;
 
 import jakarta.validation.constraints.Email;
 import lombok.Data;

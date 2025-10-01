@@ -1,8 +1,8 @@
 package com.miroslav.orarend.serviceImpl;
 
-import com.miroslav.orarend.dto.UserInputDTO;
-import com.miroslav.orarend.dto.UserOutputDTO;
-import com.miroslav.orarend.dto.UserPatchDTO;
+import com.miroslav.orarend.dto.input.UserInputDTO;
+import com.miroslav.orarend.dto.output.UserOutputDTO;
+import com.miroslav.orarend.dto.patch.UserPatchDTO;
 import com.miroslav.orarend.mapper.UserMapper;
 import com.miroslav.orarend.pojo.User;
 import com.miroslav.orarend.repository.UserRepository;

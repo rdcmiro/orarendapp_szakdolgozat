@@ -1,4 +1,4 @@
-package com.miroslav.orarend.dto;
+package com.miroslav.orarend.dto.input;
 
 import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
