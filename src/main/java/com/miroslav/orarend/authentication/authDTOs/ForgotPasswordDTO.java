@@ -1,18 +1,13 @@
-package com.miroslav.orarend.authentication;
+package com.miroslav.orarend.authentication.authDTOs;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.Data;
 
 @Data
-public class UserChangePasswordDTO {
+public class ForgotPasswordDTO {
 
     @NotEmpty
     @Email
     private String email;
-
-    @NotEmpty
-    private String oldPassword;
-    @NotEmpty
-    private String newPassword;
 }

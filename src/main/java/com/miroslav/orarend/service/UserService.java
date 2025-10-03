@@ -1,5 +1,7 @@
 package com.miroslav.orarend.service;
 
+import com.miroslav.orarend.authentication.authDTOs.UserChangePasswordDTO;
+import com.miroslav.orarend.authentication.entities.AuthenticationResponse;
 import com.miroslav.orarend.dto.input.UserInputDTO;
 import com.miroslav.orarend.dto.output.UserOutputDTO;
 import com.miroslav.orarend.dto.patch.UserPatchDTO;
@@ -13,5 +15,7 @@ public interface UserService {
     ResponseEntity<String> patchUser(Long userId, UserPatchDTO userPatchDTO);
 
     ResponseEntity<UserOutputDTO> getUser(Long userId);
+
+    ResponseEntity<AuthenticationResponse> changePassword(UserChangePasswordDTO inputDTO);
 
 }

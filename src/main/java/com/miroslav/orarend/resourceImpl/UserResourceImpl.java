@@ -1,5 +1,7 @@
 package com.miroslav.orarend.resourceImpl;
 
+import com.miroslav.orarend.authentication.authDTOs.UserChangePasswordDTO;
+import com.miroslav.orarend.authentication.entities.AuthenticationResponse;
 import com.miroslav.orarend.dto.input.UserInputDTO;
 import com.miroslav.orarend.dto.output.UserOutputDTO;
 import com.miroslav.orarend.dto.patch.UserPatchDTO;
@@ -41,6 +43,16 @@ public class UserResourceImpl implements UserResource {
         try {
             return userService.getUser(userId);
         } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @Override
+    public ResponseEntity<AuthenticationResponse> changePassword(UserChangePasswordDTO inputDTO) {
+        try {
+            return userService.changePassword(inputDTO);
+        }catch (Exception e){
             e.printStackTrace();
         }
         return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);

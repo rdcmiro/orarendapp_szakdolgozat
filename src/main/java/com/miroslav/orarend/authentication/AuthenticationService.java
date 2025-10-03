@@ -1,20 +1,28 @@
 package com.miroslav.orarend.authentication;
 
 
+import com.miroslav.orarend.authentication.authDTOs.ForgotPasswordDTO;
+import com.miroslav.orarend.authentication.authDTOs.ResetPasswordDTO;
+import com.miroslav.orarend.authentication.entities.AuthenticationRequest;
+import com.miroslav.orarend.authentication.entities.AuthenticationResponse;
+import com.miroslav.orarend.authentication.entities.PasswordResetToken;
 import com.miroslav.orarend.dto.input.UserInputDTO;
 import com.miroslav.orarend.pojo.Role;
 import com.miroslav.orarend.pojo.User;
+import com.miroslav.orarend.repository.PasswordResetTokenRepository;
 import com.miroslav.orarend.repository.UserRepository;
 import com.miroslav.orarend.service.EmailService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -29,6 +37,9 @@ public class AuthenticationService {
     private final JwtService jwtService;
 
     private final AuthenticationManager authenticationManager;
+
+    private final PasswordResetTokenRepository  passwordResetTokenRepository;
+
 
     public AuthenticationResponse register(UserInputDTO inputDTO) {
         var user = User.builder()
@@ -78,37 +89,68 @@ public class AuthenticationService {
                 .build();
     }
 
-    public AuthenticationResponse changePassword(UserChangePasswordDTO inputDTO) {
-        try {
-            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-            String email = auth.getName();
+    public ResponseEntity<String> forgotPassword(ForgotPasswordDTO inputDTO) {
+        try{
+            Optional<User> user = userRepository.findByEmail(inputDTO.getEmail());
 
-            User user = userRepository.findByEmail(email)
+            if(user.isPresent()){
+                User presentUser = user.get();
+                String resetToken = UUID.randomUUID().toString();
+
+                String encodedToken = passwordEncoder.encode(resetToken);
+
+                PasswordResetToken passwordResetToken = new PasswordResetToken();
+                passwordResetToken.setTokenHash(encodedToken);
+                passwordResetToken.setUser(presentUser);
+
+                passwordResetTokenRepository.save(passwordResetToken);
+
+                emailService.sendEmail(
+                        presentUser.getEmail(),
+                        "Jelszó visszaállítás",
+                        "Kedves " + presentUser.getUniqueName() +
+                                ",\n\nItt van a kódod a jelszavad visszaállításához: " + resetToken);
+            }
+            return ResponseEntity.ok("If an account exists with that email, we've sent you reset instructions");
+        }catch (Exception e){
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public ResponseEntity<String> resetPassword(ResetPasswordDTO inputDTO) {
+        try {
+            User user = userRepository.findByEmail(inputDTO.getEmail())
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
 
-            if (!passwordEncoder.matches(inputDTO.getOldPassword(), user.getPassword())) {
-                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Old password is incorrect");
+            PasswordResetToken passwordResetToken = passwordResetTokenRepository.findByUser(user)
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "No reset token found"));
+
+            if (passwordResetToken.isExpired()) {
+                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Reset token expired");
             }
 
-            if (passwordEncoder.matches(inputDTO.getNewPassword(), user.getPassword())) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "New password must be different from old password");
+            if (!passwordEncoder.matches(inputDTO.getToken(), passwordResetToken.getTokenHash())) {
+                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid token");
             }
 
             user.setPassword(passwordEncoder.encode(inputDTO.getNewPassword()));
             userRepository.save(user);
 
+            passwordResetTokenRepository.delete(passwordResetToken);
+
             emailService.sendEmail(
                     user.getEmail(),
-                    "Jelszó sikeresen megváltoztatva",
-                    "Kedves " + user.getUniqueName() + ",\n\na jelszavad sikeresen meg lett változtatva."
+                    "Jelszó visszaállítás",
+                    "Kedves " + user.getUniqueName() + ",\n\nA jelszavad sikeresen meg lett változtatva."
             );
 
-            String newToken = jwtService.generateToken(user);
-            return new AuthenticationResponse(newToken);
-
+            return ResponseEntity.ok("Jelszó megváltoztatva");
+        } catch (ResponseStatusException e) {
+            throw e;
         } catch (Exception e) {
             e.printStackTrace();
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Hiba történt a jelszó változtatás közben");
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Unexpected error");
         }
     }
 

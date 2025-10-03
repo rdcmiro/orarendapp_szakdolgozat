@@ -1,5 +1,7 @@
 package com.miroslav.orarend.resource;
 
+import com.miroslav.orarend.authentication.authDTOs.UserChangePasswordDTO;
+import com.miroslav.orarend.authentication.entities.AuthenticationResponse;
 import com.miroslav.orarend.dto.input.UserInputDTO;
 import com.miroslav.orarend.dto.output.UserOutputDTO;
 import com.miroslav.orarend.dto.patch.UserPatchDTO;
@@ -19,4 +21,6 @@ public interface UserResource {
     @GetMapping("/getUser/{userId}")
     ResponseEntity<UserOutputDTO> getUser(@PathVariable Long userId);
 
+    @PostMapping("/changePassword")
+    ResponseEntity<AuthenticationResponse> changePassword(@RequestBody UserChangePasswordDTO inputDTO);
 }
