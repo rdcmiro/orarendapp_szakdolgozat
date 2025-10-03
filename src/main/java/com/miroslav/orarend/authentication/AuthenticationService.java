@@ -95,6 +95,11 @@ public class AuthenticationService {
 
             if(user.isPresent()){
                 User presentUser = user.get();
+
+                if(passwordResetTokenRepository.existsByUser(presentUser)){
+                    passwordResetTokenRepository.deleteByUser(presentUser);
+                }
+
                 String resetToken = UUID.randomUUID().toString();
 
                 String encodedToken = passwordEncoder.encode(resetToken);
