@@ -7,14 +7,12 @@ import com.miroslav.orarend.authentication.entities.AuthenticationResponse;
 import com.miroslav.orarend.dto.input.UserInputDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "http://localhost:4200")
 public class AuthenticationResource {
 
     private final AuthenticationService authenticationService;
@@ -28,7 +26,6 @@ public class AuthenticationResource {
     public ResponseEntity<AuthenticationResponse> authenticate(@RequestBody AuthenticationRequest request) {
         return ResponseEntity.ok(authenticationService.authenticate(request));
     }
-
 
     @PostMapping("/forgotPassword")
     public ResponseEntity<String> forgotPassword(@RequestBody ForgotPasswordDTO inputDTO) {
