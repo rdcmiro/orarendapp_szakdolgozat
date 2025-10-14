@@ -17,6 +17,4 @@ public class LessonOutputDTO {
     private LocalTime startTime;
 
     private LocalTime endTime;
-
-    private Long userId;
 }

@@ -6,6 +6,8 @@ import com.miroslav.orarend.dto.patch.LessonPatchDTO;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public interface LessonService {
     ResponseEntity<String> createLesson(LessonInputDTO dto);
@@ -17,4 +19,6 @@ public interface LessonService {
     ResponseEntity<LessonOutputDTO> getLesson(Long lessonId);
 
     ResponseEntity<String> deleteLesson(Long lessonId);
+
+    ResponseEntity<List<LessonOutputDTO>> getAllByUser();
 }

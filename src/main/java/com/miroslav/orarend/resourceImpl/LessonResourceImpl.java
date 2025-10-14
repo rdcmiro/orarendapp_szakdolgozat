@@ -10,6 +10,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
+import java.util.List;
 
 
 @RestController
@@ -66,5 +68,15 @@ public class LessonResourceImpl implements LessonResource {
             e.printStackTrace();
         }
         return ResponseEntity.internalServerError().body("Error");
+    }
+
+    @Override
+    public ResponseEntity<List<LessonOutputDTO>> getAllUserLessons() {
+        try{
+            return lessonService.getAllByUser();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return ResponseEntity.internalServerError().body(new ArrayList<>());
     }
 }

@@ -16,6 +16,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalTime;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -120,6 +121,22 @@ public class LessonServiceImpl implements LessonService {
         } catch (EmptyResultDataAccessException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Lesson not found");
         }
+    }
+
+    @Override
+    public ResponseEntity<List<LessonOutputDTO>> getAllByUser() {
+        Optional<User> targetUser = userRepository
+                .findByEmail(SecurityContextHolder.getContext().getAuthentication().getName());
+
+        if(targetUser.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        List<Lesson> lessonListByUser = repository.findByUser(targetUser.get());
+        List<LessonOutputDTO> result = lessonListByUser.stream()
+                .map(lessonMapper::toOutputDto)
+                .toList();
+
+        return ResponseEntity.ok(result);
     }
 
 }

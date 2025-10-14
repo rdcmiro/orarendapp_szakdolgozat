@@ -5,7 +5,10 @@ import com.miroslav.orarend.dto.output.LessonOutputDTO;
 import com.miroslav.orarend.dto.patch.LessonPatchDTO;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RequestMapping("/lessons")
 public interface LessonResource {
@@ -24,5 +27,8 @@ public interface LessonResource {
 
     @DeleteMapping("/delete/{lessonId}")
     ResponseEntity<String> deleteLesson(@PathVariable Long lessonId);
+
+    @GetMapping("/allUserLessons")
+    ResponseEntity<List<LessonOutputDTO>> getAllUserLessons();
 
 }
