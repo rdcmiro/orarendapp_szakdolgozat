@@ -9,13 +9,13 @@ import com.miroslav.orarend.pojo.User;
 import com.miroslav.orarend.repository.LessonRepository;
 import com.miroslav.orarend.repository.UserRepository;
 import com.miroslav.orarend.service.LessonService;
+import com.miroslav.orarend.serviceImpl.validator.LessonValidator;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,12 +27,14 @@ public class LessonServiceImpl implements LessonService {
     private final LessonMapper mapper;
     private final LessonMapper lessonMapper;
     private final UserRepository userRepository;
+    private final LessonValidator lessonValidator;
 
-    public LessonServiceImpl(LessonRepository repository, LessonMapper mapper, LessonMapper lessonMapper, UserRepository userRepository) {
+    public LessonServiceImpl(LessonRepository repository, LessonMapper mapper, LessonMapper lessonMapper, UserRepository userRepository, LessonValidator lessonValidator) {
         this.repository = repository;
         this.mapper = mapper;
         this.lessonMapper = lessonMapper;
         this.userRepository = userRepository;
+        this.lessonValidator = lessonValidator;
     }
 
     @Override
@@ -46,7 +48,7 @@ public class LessonServiceImpl implements LessonService {
 
         input.setUser(user);
 
-        if(!doesLessonAlreadyExist(input.getStartTime(), input.getEndTime())) {
+        if(!lessonValidator.doesLessonAlreadyExist(input.getStartTime(), input.getEndTime(), user, input.getDayOfWeek())) {
             repository.save(input);
             return ResponseEntity.ok("Lesson created");
             }
@@ -55,9 +57,6 @@ public class LessonServiceImpl implements LessonService {
         }
     }
 
-    private boolean doesLessonAlreadyExist(LocalTime startTime, LocalTime endTime) {
-        return repository.existsByStartTimeAndEndTime(startTime, endTime);
-    }
 
     @Override
     public ResponseEntity<String> updateLesson(Long lessonId, LessonInputDTO dto) {

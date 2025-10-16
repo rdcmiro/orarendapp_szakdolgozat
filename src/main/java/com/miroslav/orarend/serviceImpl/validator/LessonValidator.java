@@ -1,5 +1,7 @@
 package com.miroslav.orarend.serviceImpl.validator;
 
+import com.miroslav.orarend.constants.DayOfWeek;
+import com.miroslav.orarend.pojo.User;
 import com.miroslav.orarend.repository.LessonRepository;
 import org.springframework.stereotype.Component;
 
@@ -16,7 +18,7 @@ public class LessonValidator {
     }
 
 
-    public boolean doesLessonAlreadyExist(LocalTime startTime, LocalTime endTime) {
-        return repository.existsByStartTimeAndEndTime(startTime, endTime);
+    public boolean doesLessonAlreadyExist(LocalTime startTime, LocalTime endTime, User user, DayOfWeek dayOfWeek) {
+        return repository.existsByStartTimeAndEndTimeAndDayOfWeekAndUser(startTime, endTime, dayOfWeek, user);
     }
 }
