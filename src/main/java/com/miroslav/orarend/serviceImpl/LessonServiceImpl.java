@@ -48,7 +48,7 @@ public class LessonServiceImpl implements LessonService {
 
         if(!doesLessonAlreadyExist(input.getStartTime(), input.getEndTime())) {
             repository.save(input);
-            return new ResponseEntity<>("Lesson created", HttpStatus.CREATED);
+            return ResponseEntity.ok("Lesson created");
             }
         else  {
             return new ResponseEntity<>("Lesson already exists", HttpStatus.CONFLICT);

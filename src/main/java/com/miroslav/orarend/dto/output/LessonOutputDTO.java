@@ -8,6 +8,8 @@ import java.time.LocalTime;
 @Data
 public class LessonOutputDTO {
 
+    private Long id;
+
     private String className;
 
     private String teacher;
