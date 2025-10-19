@@ -1,16 +1,20 @@
 package com.miroslav.orarend.resourceImpl;
 
 
+import com.miroslav.orarend.dto.output.FileEntityOutputDTO;
 import com.miroslav.orarend.pojo.FileEntity;
 import com.miroslav.orarend.pojo.User;
 import com.miroslav.orarend.resource.FileResource;
 import com.miroslav.orarend.service.FileService;
 import com.miroslav.orarend.service.OllamaService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/files")
@@ -42,6 +46,15 @@ public class FileResourceImpl implements FileResource {
             return ResponseEntity.ok(summary);
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body("⚠️ Hiba az összefoglalás során: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public ResponseEntity<List<FileEntityOutputDTO>> getAllFilesByUser() {
+        try {
+            return fileService.getAllByUser();
+        }catch (Exception e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 }
