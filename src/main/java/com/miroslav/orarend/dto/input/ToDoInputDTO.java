@@ -1,5 +1,6 @@
 package com.miroslav.orarend.dto.input;
 
+import com.miroslav.orarend.pojo.Lesson;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
@@ -19,4 +20,6 @@ public class ToDoInputDTO {
     private LocalDateTime dueTime;
 
     private Boolean isItDone;
+
+    private Lesson lesson;
 }

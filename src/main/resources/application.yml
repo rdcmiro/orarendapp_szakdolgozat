@@ -2,6 +2,11 @@ spring:
   application:
     name: Okos Orarend
 
+  servlet:
+    multipart:
+      max-file-size: 25MB
+      max-request-size: 25MB
+
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3307/orarend
@@ -37,3 +42,6 @@ logging:
     org.springframework.security: DEBUG
     org.springframework.web: DEBUG
     org.springframework.mail: DEBUG
+
+app:
+  upload-dir: uploads
