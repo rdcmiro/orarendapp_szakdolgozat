@@ -2,7 +2,7 @@ package com.miroslav.orarend.dto.output;
 
 import lombok.Data;
 
-import java.time.LocalTime;
+import java.time.LocalDateTime;
 
 @Data
 public class ToDoOutputDTO {
@@ -13,7 +13,7 @@ public class ToDoOutputDTO {
 
     private String description;
 
-    private LocalTime dueTime;
+    private LocalDateTime dueTime;
 
     private Boolean isItDone;
 }

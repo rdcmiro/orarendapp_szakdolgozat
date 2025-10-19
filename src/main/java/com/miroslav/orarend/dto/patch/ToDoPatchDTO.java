@@ -2,7 +2,7 @@ package com.miroslav.orarend.dto.patch;
 
 import lombok.Data;
 
-import java.time.LocalTime;
+import java.time.LocalDateTime;
 
 @Data
 public class ToDoPatchDTO {
@@ -11,7 +11,7 @@ public class ToDoPatchDTO {
 
     private String description;
 
-    private LocalTime dueTime;
+    private LocalDateTime dueTime;
 
     private Boolean isItDone;
 }

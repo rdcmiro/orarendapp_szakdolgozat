@@ -1,5 +1,6 @@
 package com.miroslav.orarend.pojo;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -10,7 +11,7 @@ import org.hibernate.annotations.DynamicUpdate;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.time.LocalTime;
+import java.time.LocalDateTime;
 
 @Entity
 @Data
@@ -42,8 +43,13 @@ public class ToDo implements Serializable {
 
     @NotNull
     @Column(name = "due_time", nullable = false)
-    private LocalTime dueTime;
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    private LocalDateTime dueTime;
 
     @Column(name = "is_it_done")
-    private Boolean isItDone;
+    private Boolean isItDone = false;
+
+    @ManyToOne
+    @JoinColumn(name = "lesson_id")
+    private Lesson lesson;
 }

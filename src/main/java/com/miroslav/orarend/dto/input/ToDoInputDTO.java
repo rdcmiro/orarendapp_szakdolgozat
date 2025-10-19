@@ -4,7 +4,7 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
-import java.time.LocalTime;
+import java.time.LocalDateTime;
 
 @Data
 public class ToDoInputDTO {
@@ -16,7 +16,7 @@ public class ToDoInputDTO {
     private String description;
 
     @NotNull
-    private LocalTime dueTime;
+    private LocalDateTime dueTime;
 
     private Boolean isItDone;
 }
