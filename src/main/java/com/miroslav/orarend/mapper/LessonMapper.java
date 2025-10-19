@@ -10,8 +10,6 @@ public interface LessonMapper {
 
     Lesson toEntity(LessonInputDTO dto);
 
-    LessonInputDTO toDto(Lesson entity);
-
     LessonOutputDTO toOutputDto(Lesson entity);
 
 }

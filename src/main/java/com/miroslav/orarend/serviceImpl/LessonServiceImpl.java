@@ -10,41 +10,35 @@ import com.miroslav.orarend.repository.LessonRepository;
 import com.miroslav.orarend.repository.UserRepository;
 import com.miroslav.orarend.service.LessonService;
 import com.miroslav.orarend.serviceImpl.validator.LessonValidator;
+import lombok.RequiredArgsConstructor;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class LessonServiceImpl implements LessonService {
 
     private final LessonRepository repository;
 
-    private final LessonMapper mapper;
     private final LessonMapper lessonMapper;
     private final UserRepository userRepository;
     private final LessonValidator lessonValidator;
 
-    public LessonServiceImpl(LessonRepository repository, LessonMapper mapper, LessonMapper lessonMapper, UserRepository userRepository, LessonValidator lessonValidator) {
-        this.repository = repository;
-        this.mapper = mapper;
-        this.lessonMapper = lessonMapper;
-        this.userRepository = userRepository;
-        this.lessonValidator = lessonValidator;
-    }
-
     @Override
     public ResponseEntity<String> createLesson(LessonInputDTO dto) {
-        Lesson input = mapper.toEntity(dto);
+        Lesson input = lessonMapper.toEntity(dto);
 
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
 
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
 
         input.setUser(user);
 
@@ -63,7 +57,7 @@ public class LessonServiceImpl implements LessonService {
         Optional<Lesson> lesson = repository.findById(lessonId);
 
         if(lesson.isEmpty()) {
-            return new ResponseEntity<>("Lesson not found", HttpStatus.NOT_FOUND);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Lesson not found");
         }
 
         Lesson lessonToUpdate = lesson.get();
@@ -72,7 +66,7 @@ public class LessonServiceImpl implements LessonService {
         lessonToUpdate.setStartTime(dto.getStartTime());
         lessonToUpdate.setEndTime(dto.getEndTime());
         repository.save(lessonToUpdate);
-        return new ResponseEntity<>("Lesson updated", HttpStatus.OK);
+        return ResponseEntity.ok("Lesson updated");
     }
 
     @Override
@@ -80,7 +74,7 @@ public class LessonServiceImpl implements LessonService {
         Optional<Lesson> lesson = repository.findById(lessonId);
 
         if(lesson.isEmpty()) {
-            return new ResponseEntity<>("Lesson not found", HttpStatus.NOT_FOUND);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Lesson not found");
         }
 
         Lesson lessonToUpdate = lesson.get();

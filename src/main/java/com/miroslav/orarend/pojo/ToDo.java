@@ -43,4 +43,7 @@ public class ToDo implements Serializable {
     @NotNull
     @Column(name = "due_time", nullable = false)
     private LocalTime dueTime;
+
+    @Column(name = "is_it_done")
+    private Boolean isItDone;
 }
