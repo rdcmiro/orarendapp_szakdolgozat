@@ -11,7 +11,6 @@ import com.miroslav.orarend.repository.UserRepository;
 import com.miroslav.orarend.service.LessonService;
 import com.miroslav.orarend.serviceImpl.validator.LessonValidator;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -19,117 +18,140 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class LessonServiceImpl implements LessonService {
 
     private final LessonRepository repository;
-
     private final LessonMapper lessonMapper;
     private final UserRepository userRepository;
     private final LessonValidator lessonValidator;
 
+    // CREATE
     @Override
     public ResponseEntity<String> createLesson(LessonInputDTO dto) {
         Lesson input = lessonMapper.toEntity(dto);
 
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
+        User user = userRepository.findByEmail(
+                SecurityContextHolder.getContext().getAuthentication().getName()
+        ).orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
 
         input.setUser(user);
 
-        if(!lessonValidator.doesLessonAlreadyExist(input.getStartTime(), input.getEndTime(), user, input.getDayOfWeek())) {
-            repository.save(input);
-            return ResponseEntity.ok("Lesson created");
-            }
-        else  {
-            return new ResponseEntity<>("Lesson already exists", HttpStatus.CONFLICT);
+        boolean exists = lessonValidator.doesLessonAlreadyExist(
+                input.getStartTime(), input.getEndTime(), user, input.getDayOfWeek()
+        );
+
+        if (exists) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Lesson already exists");
         }
+
+        repository.save(input);
+        return ResponseEntity.ok("Lesson created");
     }
 
-
+    // UPDATE (PUT)
     @Override
     public ResponseEntity<String> updateLesson(Long lessonId, LessonInputDTO dto) {
-        Optional<Lesson> lesson = repository.findById(lessonId);
+        Lesson lessonToUpdate = repository.findById(lessonId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Lesson not found"));
 
-        if(lesson.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Lesson not found");
+        User user = userRepository.findByEmail(
+                SecurityContextHolder.getContext().getAuthentication().getName()
+        ).orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
+
+        if (!lessonToUpdate.getUser().getId().equals(user.getId())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not allowed to edit this lesson");
         }
 
-        Lesson lessonToUpdate = lesson.get();
         lessonToUpdate.setClassName(dto.getClassName());
+        lessonToUpdate.setTeacher(dto.getTeacher());
         lessonToUpdate.setDayOfWeek(dto.getDayOfWeek());
         lessonToUpdate.setStartTime(dto.getStartTime());
         lessonToUpdate.setEndTime(dto.getEndTime());
+
         repository.save(lessonToUpdate);
         return ResponseEntity.ok("Lesson updated");
     }
 
+    // PATCH (részleges update)
     @Override
     public ResponseEntity<String> patchLesson(Long lessonId, LessonPatchDTO dto) {
-        Optional<Lesson> lesson = repository.findById(lessonId);
+        Lesson lessonToUpdate = repository.findById(lessonId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Lesson not found"));
 
-        if(lesson.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Lesson not found");
+        User user = userRepository.findByEmail(
+                SecurityContextHolder.getContext().getAuthentication().getName()
+        ).orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
+
+        if (!lessonToUpdate.getUser().getId().equals(user.getId())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not allowed to modify this lesson");
         }
 
-        Lesson lessonToUpdate = lesson.get();
-        if(dto.getClassName() != null) {
-            lessonToUpdate.setClassName(dto.getClassName());
-        }
-        if(dto.getTeacher() != null) {
-            lessonToUpdate.setTeacher(dto.getTeacher());
-        }
-        if(dto.getDayOfWeek() != null) {
-            lessonToUpdate.setDayOfWeek(dto.getDayOfWeek());
-        }
-        if(dto.getStartTime() != null) {
-            lessonToUpdate.setStartTime(dto.getStartTime());
-        }
-        if(dto.getEndTime() != null) {
-            lessonToUpdate.setEndTime(dto.getEndTime());
-        }
+        if (dto.getClassName() != null) lessonToUpdate.setClassName(dto.getClassName());
+        if (dto.getTeacher() != null) lessonToUpdate.setTeacher(dto.getTeacher());
+        if (dto.getDayOfWeek() != null) lessonToUpdate.setDayOfWeek(dto.getDayOfWeek());
+        if (dto.getStartTime() != null) lessonToUpdate.setStartTime(dto.getStartTime());
+        if (dto.getEndTime() != null) lessonToUpdate.setEndTime(dto.getEndTime());
+
         repository.save(lessonToUpdate);
-        return new ResponseEntity<>("Lesson patched", HttpStatus.OK);
+        return ResponseEntity.ok("Lesson patched");
     }
 
+    // GET (egyetlen lesson lekérése)
     @Override
     public ResponseEntity<LessonOutputDTO> getLesson(Long lessonId) {
-        Optional<Lesson> lesson = repository.findById(lessonId);
-        if(lesson.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        User user = userRepository.findByEmail(
+                SecurityContextHolder.getContext().getAuthentication().getName()
+        ).orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
+
+        Lesson lesson = repository.findById(lessonId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Lesson not found"));
+
+        if (!lesson.getUser().getId().equals(user.getId())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not allowed to access this lesson");
         }
-        LessonOutputDTO lessonOutputDTO = lessonMapper.toOutputDto(lesson.get());
-        return new ResponseEntity<>(lessonOutputDTO, HttpStatus.OK);
+
+        LessonOutputDTO output = lessonMapper.toOutputDto(lesson);
+        return ResponseEntity.ok(output);
     }
 
+    // DELETE
+    @Override
     public ResponseEntity<String> deleteLesson(Long lessonId) {
-        try {
-            repository.deleteById(lessonId);
-            return ResponseEntity.ok("Lesson deleted");
-        } catch (EmptyResultDataAccessException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Lesson not found");
+        User user = userRepository.findByEmail(
+                SecurityContextHolder.getContext().getAuthentication().getName()
+        ).orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
+
+        Lesson lesson = repository.findById(lessonId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Lesson not found"));
+
+        if (!lesson.getUser().getId().equals(user.getId())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not allowed to delete this lesson");
         }
+
+        repository.delete(lesson);
+        return ResponseEntity.ok("Lesson deleted");
     }
 
+    // GET ALL by user
     @Override
     public ResponseEntity<List<LessonOutputDTO>> getAllByUser() {
-        Optional<User> targetUser = userRepository
-                .findByEmail(SecurityContextHolder.getContext().getAuthentication().getName());
+        User user = userRepository.findByEmail(
+                SecurityContextHolder.getContext().getAuthentication().getName()
+        ).orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
 
-        if(targetUser.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        List<Lesson> lessons = repository.findByUser(user);
+
+        if (lessons.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         }
-        List<Lesson> lessonListByUser = repository.findByUser(targetUser.get());
-        List<LessonOutputDTO> result = lessonListByUser.stream()
+
+        List<LessonOutputDTO> result = lessons.stream()
                 .map(lessonMapper::toOutputDto)
                 .toList();
 
         return ResponseEntity.ok(result);
     }
-
 }

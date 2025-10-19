@@ -15,112 +15,116 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
-
-import java.util.Optional;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
-
     private final UserRepository userRepository;
-
     private final UserMapper userMapper;
-
     private final JwtService jwtService;
-
     private final EmailService emailService;
-
     private final PasswordEncoder passwordEncoder;
 
+    // 🔹 Helper metódus – a bejelentkezett user lekérése
+    private User getCurrentUser() {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
+    }
 
-
+    // 🔹 Teljes update (PUT)
     @Override
     public ResponseEntity<String> updateUser(Long userId, UserInputDTO userInputDTO) {
-        Optional<User> optionalUser = userRepository.findById(userId);
-        if(optionalUser.isEmpty()){
-            return new ResponseEntity<>("User not found", HttpStatus.NOT_FOUND);
+        User currentUser = getCurrentUser();
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+
+        // csak a saját adatait módosíthatja
+        if (!user.getId().equals(currentUser.getId())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not allowed to update this user");
         }
-        User user = optionalUser.get();
 
         user.setUsername(userInputDTO.getUsername());
         user.setEmail(userInputDTO.getEmail());
-        user.setPassword(userInputDTO.getPassword());
+        user.setPassword(passwordEncoder.encode(userInputDTO.getPassword()));
+
         userRepository.save(user);
-        return new ResponseEntity<>("User updated successfully", HttpStatus.OK);
+        return ResponseEntity.ok("User updated successfully");
     }
 
+    // 🔹 Részleges update (PATCH)
     @Override
-    public ResponseEntity<String> patchUser (Long userId, UserPatchDTO patchDTO) {
-        Optional<User> optionalUser = userRepository.findById(userId);
-        if(optionalUser.isEmpty()){
-            return new ResponseEntity<>("User not found", HttpStatus.NOT_FOUND);
+    public ResponseEntity<String> patchUser(Long userId, UserPatchDTO patchDTO) {
+        User currentUser = getCurrentUser();
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+
+        if (!user.getId().equals(currentUser.getId())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not allowed to modify this user");
         }
 
-        User user = optionalUser.get();
-
-        if(patchDTO.getUsername() != null){
+        if (patchDTO.getUsername() != null) {
             user.setUsername(patchDTO.getUsername());
         }
-        if(patchDTO.getEmail() != null){
+        if (patchDTO.getEmail() != null) {
             user.setEmail(patchDTO.getEmail());
         }
-        if(patchDTO.getPassword() != null){
-            user.setPassword(patchDTO.getPassword());
+        if (patchDTO.getPassword() != null) {
+            user.setPassword(passwordEncoder.encode(patchDTO.getPassword()));
         }
+
         userRepository.save(user);
-        return new ResponseEntity<>("User patched successfully", HttpStatus.OK);
+        return ResponseEntity.ok("User patched successfully");
     }
 
+    // 🔹 Egy user lekérése ID alapján
     @Override
     public ResponseEntity<UserOutputDTO> getUser(Long userId) {
-        Optional<User> optionalUser = userRepository.findById(userId);
-        if(optionalUser.isEmpty()){
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        User currentUser = getCurrentUser();
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+
+        if (!user.getId().equals(currentUser.getId())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not allowed to access this user");
         }
-        UserOutputDTO userOutputDTO = userMapper.toOutputDTO(optionalUser.get());
-        return new ResponseEntity<>(userOutputDTO, HttpStatus.OK);
+
+        UserOutputDTO userOutputDTO = userMapper.toOutputDTO(user);
+        return ResponseEntity.ok(userOutputDTO);
     }
 
+    // 🔹 Jelszóváltás
+    @Override
     public ResponseEntity<AuthenticationResponse> changePassword(UserChangePasswordDTO inputDTO) {
-        try {
-            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-            String email = auth.getName();
+        User user = getCurrentUser();
 
-            User user = userRepository.findByEmail(email)
-                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
-
-            if (!passwordEncoder.matches(inputDTO.getOldPassword(), user.getPassword())) {
-                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Old password is incorrect");
-            }
-
-            if (passwordEncoder.matches(inputDTO.getNewPassword(), user.getPassword())) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "New password must be different from old password");
-            }
-
-            user.setPassword(passwordEncoder.encode(inputDTO.getNewPassword()));
-            userRepository.save(user);
-
-            emailService.sendEmail(
-                    user.getEmail(),
-                    "Jelszó sikeresen megváltoztatva",
-                    "Kedves " + user.getUniqueName() + ",\n\na jelszavad sikeresen meg lett változtatva."
-            );
-
-            String newToken = jwtService.generateToken(user);
-            return new ResponseEntity<>(new AuthenticationResponse(newToken), HttpStatus.OK);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new
-                    ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Hiba történt a jelszó változtatás közben");
+        // ellenőrzés: régi jelszó helyes?
+        if (!passwordEncoder.matches(inputDTO.getOldPassword(), user.getPassword())) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Old password is incorrect");
         }
-    }
 
+        // új jelszó különbözik a régitől?
+        if (passwordEncoder.matches(inputDTO.getNewPassword(), user.getPassword())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "New password must be different from old password");
+        }
+
+        user.setPassword(passwordEncoder.encode(inputDTO.getNewPassword()));
+        userRepository.save(user);
+
+        // e-mail értesítés
+        emailService.sendEmail(
+                user.getEmail(),
+                "Jelszó sikeresen megváltoztatva",
+                "Kedves " + user.getUniqueName() + ",\n\nA jelszavad sikeresen meg lett változtatva."
+        );
+
+        // új JWT token generálása
+        String newToken = jwtService.generateToken(user);
+        return ResponseEntity.ok(new AuthenticationResponse(newToken));
+    }
 }

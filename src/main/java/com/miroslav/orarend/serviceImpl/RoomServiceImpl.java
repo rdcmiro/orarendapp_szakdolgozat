@@ -10,91 +10,106 @@ import com.miroslav.orarend.repository.RoomRepository;
 import com.miroslav.orarend.repository.UserRepository;
 import com.miroslav.orarend.service.RoomService;
 import com.miroslav.orarend.serviceImpl.validator.RoomValidator;
-import org.springframework.dao.EmptyResultDataAccessException;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
+@RequiredArgsConstructor
 public class RoomServiceImpl implements RoomService {
 
     private final RoomValidator validator;
-
     private final RoomRepository roomRepository;
-
     private final RoomMapper roomMapper;
-
     private final UserRepository userRepository;
 
-    public RoomServiceImpl(RoomValidator validator, RoomRepository roomRepository, RoomMapper roomMapper, UserRepository userRepository) {
-        this.validator = validator;
-        this.roomRepository = roomRepository;
-        this.roomMapper = roomMapper;
-        this.userRepository = userRepository;
+    // 🔹 Helper metódus a bejelentkezett user lekérésére
+    private User getCurrentUser() {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
     }
 
+    // 🔹 CREATE
     @Override
     public ResponseEntity<String> createRoom(RoomInputDTO roomInputDTO) {
         Room room = roomMapper.toEntity(roomInputDTO);
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        User user = getCurrentUser();
         room.setCreatedBy(user);
+
         if (validator.doesRoomExist(room)) {
-            return ResponseEntity.badRequest().body("Invalid room data or room already exists");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Room already exists or invalid data");
         }
+
         roomRepository.save(room);
         return ResponseEntity.ok("Room created successfully");
     }
 
+    // 🔹 UPDATE (PUT)
     @Override
     public ResponseEntity<String> updateRoom(Long roomId, RoomInputDTO roomInputDTO) {
-        Optional<Room> optionalRoom = roomRepository.findById(roomId);
+        Room existingRoom = roomRepository.findById(roomId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Room not found"));
 
-        if (optionalRoom.isEmpty()) {
-            return ResponseEntity.notFound().build();
+        User user = getCurrentUser();
+        if (!existingRoom.getCreatedBy().getId().equals(user.getId())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not allowed to edit this room");
         }
 
-        Room existingRoom = optionalRoom.get();
         existingRoom.setName(roomInputDTO.getName());
         roomRepository.save(existingRoom);
         return ResponseEntity.ok("Room updated successfully");
     }
 
+    // 🔹 PATCH (részleges frissítés)
     @Override
     public ResponseEntity<String> patchRoom(Long roomId, RoomPatchDTO patchDTO) {
-        Optional<Room> optionalRoom = roomRepository.findById(roomId);
-        if (optionalRoom.isEmpty()) {
-            return ResponseEntity.notFound().build();
+        Room existingRoom = roomRepository.findById(roomId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Room not found"));
+
+        User user = getCurrentUser();
+        if (!existingRoom.getCreatedBy().getId().equals(user.getId())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not allowed to modify this room");
         }
 
-        Room existingRoom = optionalRoom.get();
         if (patchDTO.getName() != null) {
             existingRoom.setName(patchDTO.getName());
         }
+
         roomRepository.save(existingRoom);
         return ResponseEntity.ok("Room patched successfully");
     }
 
+    // 🔹 GET (egyetlen szoba)
     @Override
     public ResponseEntity<RoomOutputDTO> getRoom(Long roomId) {
-        Optional<Room> optionalRoom = roomRepository.findById(roomId);
-        if (optionalRoom.isEmpty()) {
-            return ResponseEntity.notFound().build();
+        Room room = roomRepository.findById(roomId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Room not found"));
+
+        User user = getCurrentUser();
+        if (!room.getCreatedBy().getId().equals(user.getId())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not allowed to access this room");
         }
-        RoomOutputDTO outputDTO = roomMapper.toOutputDto(optionalRoom.get());
-        return ResponseEntity.ok(outputDTO);
+
+        RoomOutputDTO output = roomMapper.toOutputDto(room);
+        return ResponseEntity.ok(output);
     }
 
+    // 🔹 DELETE
     @Override
     public ResponseEntity<String> deleteRoom(Long roomId) {
-        try {
-            roomRepository.deleteById(roomId);
-            return ResponseEntity.ok("Room deleted successfully");
-        } catch (EmptyResultDataAccessException e) {
-            return ResponseEntity.notFound().build();
+        Room room = roomRepository.findById(roomId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Room not found"));
+
+        User user = getCurrentUser();
+        if (!room.getCreatedBy().getId().equals(user.getId())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not allowed to delete this room");
         }
+
+        roomRepository.delete(room);
+        return ResponseEntity.ok("Room deleted successfully");
     }
 }
