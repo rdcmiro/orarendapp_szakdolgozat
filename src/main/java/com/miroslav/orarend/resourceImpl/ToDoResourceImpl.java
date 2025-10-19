@@ -5,15 +5,33 @@ import com.miroslav.orarend.dto.output.ToDoOutputDTO;
 import com.miroslav.orarend.dto.patch.ToDoPatchDTO;
 import com.miroslav.orarend.resource.ToDoResource;
 import com.miroslav.orarend.service.ToDoService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@RestController
+@CrossOrigin(
+        origins = "http://localhost:4200",
+        allowedHeaders = {"Authorization", "Content-Type"},
+        methods = {
+                RequestMethod.GET,
+                RequestMethod.POST,
+                RequestMethod.PUT,
+                RequestMethod.DELETE,
+                RequestMethod.PATCH,
+                RequestMethod.OPTIONS
+        }
+)
+@RequiredArgsConstructor
 public class ToDoResourceImpl implements ToDoResource {
 
-    private ToDoService toDoService;
+    private final ToDoService toDoService;
 
     @Override
     public ResponseEntity<String> createToDo(ToDoInputDTO toDoInputDTO) {
