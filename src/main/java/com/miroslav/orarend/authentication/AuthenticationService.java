@@ -19,6 +19,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Optional;
@@ -89,6 +90,7 @@ public class AuthenticationService {
                 .build();
     }
 
+    @Transactional
     public ResponseEntity<String> forgotPassword(ForgotPasswordDTO inputDTO) {
         try{
             Optional<User> user = userRepository.findByEmail(inputDTO.getEmail());

@@ -50,6 +50,15 @@ public class FileResourceImpl implements FileResource {
     }
 
     @Override
+    public ResponseEntity<?> deleteFile(Long id) {
+        try {
+            return fileService.deleteFile(id);
+        }catch (Exception e){
+            return ResponseEntity.internalServerError().body("Sikertelen törlés");
+        }
+    }
+
+    @Override
     public ResponseEntity<List<FileEntityOutputDTO>> getAllFilesByUser() {
         try {
             return fileService.getAllByUser();
@@ -57,4 +66,15 @@ public class FileResourceImpl implements FileResource {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+
+    @Override
+    public ResponseEntity<?> downloadFile(Long id, Authentication authentication) {
+        try {
+            User user = (User) authentication.getPrincipal();
+            return fileService.downloadFile(id, user);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("❌ Letöltési hiba: " + e.getMessage());
+        }
+    }
+
 }

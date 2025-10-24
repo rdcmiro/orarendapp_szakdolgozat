@@ -2,7 +2,6 @@ package com.miroslav.orarend.resource;
 
 
 import com.miroslav.orarend.dto.output.FileEntityOutputDTO;
-import com.miroslav.orarend.pojo.FileEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -23,6 +22,13 @@ public interface FileResource {
     @GetMapping("/{id}/summary")
     ResponseEntity<?> summarizeFile(@PathVariable Long id);
 
+    @DeleteMapping("/{id}")
+    ResponseEntity<?> deleteFile(@PathVariable Long id);
+
     @GetMapping("/getAllFilesByUser")
     ResponseEntity<List<FileEntityOutputDTO>> getAllFilesByUser();
+
+    @GetMapping("/{id}/download")
+    ResponseEntity<?> downloadFile(@PathVariable Long id, Authentication authentication);
+
 }
