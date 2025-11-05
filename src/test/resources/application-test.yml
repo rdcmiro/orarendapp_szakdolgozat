@@ -1,0 +1,5 @@
+gemini:
+  enabled: false
+logging:
+  level:
+    org.springframework.boot.autoconfigure.condition: DEBUG

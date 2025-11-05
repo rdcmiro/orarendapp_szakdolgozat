@@ -39,9 +39,6 @@ public class FileResourceImpl implements FileResource {
     public ResponseEntity<?> summarizeFile(Long id) {
         try {
             String text = fileService.extractTextFromFile(id);
-            if (text.length() > 15000) {
-                text = text.substring(0, 15000);
-            }
             String summary = ollamaService.summarizeText(text);
             return ResponseEntity.ok(summary);
         } catch (Exception e) {

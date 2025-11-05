@@ -43,5 +43,14 @@ logging:
     org.springframework.web: DEBUG
     org.springframework.mail: DEBUG
 
+gemini:
+  enabled: true
+  model: gemini-2.5-flash
+  temperature: 0.3
+  maxOutputTokens: 512
+  chunkSize: 8000
+  chunkOverlap: 400
+  enableGoogleSearch: false
+
 app:
   upload-dir: uploads
