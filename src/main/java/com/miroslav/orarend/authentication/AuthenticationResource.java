@@ -19,21 +19,41 @@ public class AuthenticationResource {
 
     @PostMapping("/register")
     public ResponseEntity<AuthenticationResponse> register(@RequestBody UserInputDTO inputDTO) {
-        return ResponseEntity.ok(authenticationService.register(inputDTO));
+        try {
+            return ResponseEntity.ok(authenticationService.register(inputDTO));
+        }catch (Exception e) {
+            e.printStackTrace();
+        }
+        return (ResponseEntity<AuthenticationResponse>) ResponseEntity.internalServerError();
     }
 
     @PostMapping("/authenticate")
     public ResponseEntity<AuthenticationResponse> authenticate(@RequestBody AuthenticationRequest request) {
-        return ResponseEntity.ok(authenticationService.authenticate(request));
+        try {
+            return ResponseEntity.ok(authenticationService.authenticate(request));
+        }catch (Exception e) {
+            e.printStackTrace();
+        }
+        return (ResponseEntity<AuthenticationResponse>) ResponseEntity.internalServerError();
     }
 
     @PostMapping("/forgotPassword")
     public ResponseEntity<String> forgotPassword(@RequestBody ForgotPasswordDTO inputDTO) {
-        return authenticationService.forgotPassword(inputDTO);
+        try {
+            return ResponseEntity.ok(String.valueOf(authenticationService.forgotPassword(inputDTO)));
+        }catch (Exception e) {
+            e.printStackTrace();
+        }
+        return (ResponseEntity<String>) ResponseEntity.internalServerError();
     }
 
     @PostMapping("/resetPassword")
     public ResponseEntity<String> resetPassword(@RequestBody ResetPasswordDTO inputDTO) {
-        return authenticationService.resetPassword(inputDTO);
+        try {
+            return ResponseEntity.ok(String.valueOf(authenticationService.resetPassword(inputDTO)));
+        }catch (Exception e) {
+            e.printStackTrace();
+        }
+        return (ResponseEntity<String>) ResponseEntity.internalServerError();
     }
 }
