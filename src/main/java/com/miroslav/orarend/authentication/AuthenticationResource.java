@@ -5,6 +5,7 @@ import com.miroslav.orarend.authentication.authDTOs.ResetPasswordDTO;
 import com.miroslav.orarend.authentication.entities.AuthenticationRequest;
 import com.miroslav.orarend.authentication.entities.AuthenticationResponse;
 import com.miroslav.orarend.dto.input.UserInputDTO;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,13 +19,9 @@ public class AuthenticationResource {
     private final AuthenticationService authenticationService;
 
     @PostMapping("/register")
-    public ResponseEntity<AuthenticationResponse> register(@RequestBody UserInputDTO inputDTO) {
-        try {
-            return ResponseEntity.ok(authenticationService.register(inputDTO));
-        }catch (Exception e) {
-            e.printStackTrace();
-        }
-        return (ResponseEntity<AuthenticationResponse>) ResponseEntity.internalServerError();
+    public ResponseEntity<AuthenticationResponse> register(@Valid @RequestBody UserInputDTO inputDTO) {
+        AuthenticationResponse response = authenticationService.register(inputDTO);
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/authenticate")

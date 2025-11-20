@@ -1,5 +1,6 @@
 package com.miroslav.orarend.dto.input;
 
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,6 +20,7 @@ public class UserInputDTO {
     private String password;
 
     @NotEmpty
+    @Email
     private String email;
 
 }

@@ -13,6 +13,7 @@ import com.miroslav.orarend.repository.PasswordResetTokenRepository;
 import com.miroslav.orarend.repository.UserRepository;
 import com.miroslav.orarend.service.EmailService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -26,6 +27,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class AuthenticationService {
 
@@ -55,18 +57,17 @@ public class AuthenticationService {
         if (userRepository.existsByUsername(user.getUniqueName())) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Username has already been registered");
         }
+        userRepository.save(user);
         try {
             emailService.sendEmail(
                     user.getEmail(),
                     "Sikeres regisztráció",
                     "\nKedves " + user.getUniqueName() + ", örömmel üdvözöljük az "
-                    + "Okos órarend szolgáltatásban."
+                            + "Okos órarend szolgáltatásban."
             );
-            System.out.println("✅ Email küldve!");
         } catch (Exception e) {
-            e.printStackTrace();
+            log.warn("Az üdvőzlő email küldése sikertelen volt.");
         }
-        userRepository.save(user);
         var jwtToken = jwtService.generateToken(user);
         System.out.printf("JWT Token: %s", jwtToken);
         return AuthenticationResponse.builder()
@@ -84,7 +85,6 @@ public class AuthenticationService {
         var user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow();
         var jwtToken = jwtService.generateToken(user);
-        System.out.printf("JWT Token: %s", jwtToken);
         return AuthenticationResponse.builder()
                 .token(jwtToken)
                 .build();
@@ -134,10 +134,15 @@ public class AuthenticationService {
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "No reset token found"));
 
             if (passwordResetToken.isExpired()) {
+                log.warn("A felhasználó a következő email-címmel: "+  user.getUniqueName() +
+                        "lejárt tokent adott meg");
                 throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Reset token expired");
+
             }
 
             if (!passwordEncoder.matches(inputDTO.getToken(), passwordResetToken.getTokenHash())) {
+                log.warn("A felhasználó a következő email-címmel: "+  user.getUniqueName() +
+                        "Hibás tokent adott meg");
                 throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid token");
             }
 
@@ -156,7 +161,7 @@ public class AuthenticationService {
         } catch (ResponseStatusException e) {
             throw e;
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Nem várt hiba");
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Unexpected error");
         }
     }
