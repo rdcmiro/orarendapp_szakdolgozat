@@ -8,8 +8,8 @@ import com.miroslav.orarend.dto.input.UserInputDTO;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:4200")
 @Slf4j
 public class AuthenticationResource {
 
@@ -33,30 +32,34 @@ public class AuthenticationResource {
     @PostMapping("/authenticate")
     public ResponseEntity<AuthenticationResponse> authenticate(@RequestBody AuthenticationRequest request) {
         try {
-            return ResponseEntity.ok(authenticationService.authenticate(request));
+            AuthenticationResponse response = authenticationService.authenticate(request);
+            return ResponseEntity.ok(response);
         }catch (Exception e) {
-            log.error(e.getMessage());
-            return (ResponseEntity<AuthenticationResponse>) ResponseEntity.internalServerError();
+            log.error("Authentication failed", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(null);
         }
     }
 
     @PostMapping("/forgotPassword")
-    public ResponseEntity<String> forgotPassword(@RequestBody ForgotPasswordDTO inputDTO) {
+    public ResponseEntity<String> forgotPassword(@RequestBody @Valid ForgotPasswordDTO inputDTO) {
         try {
             return ResponseEntity.ok(String.valueOf(authenticationService.forgotPassword(inputDTO)));
         }catch (Exception e) {
-            log.error(e.getMessage());
-            return (ResponseEntity<String>) ResponseEntity.internalServerError();
+            log.error("Error in forgot password method", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(null);
         }
     }
 
     @PostMapping("/resetPassword")
-    public ResponseEntity<String> resetPassword(@RequestBody ResetPasswordDTO inputDTO) {
+    public ResponseEntity<String> resetPassword(@RequestBody @Valid ResetPasswordDTO inputDTO) {
         try {
             return ResponseEntity.ok(String.valueOf(authenticationService.resetPassword(inputDTO)));
         }catch (Exception e) {
-            log.error(e.getMessage());
-            return (ResponseEntity<String>) ResponseEntity.internalServerError();
+            log.error("Password reset failed", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(null);
         }
     }
 }
