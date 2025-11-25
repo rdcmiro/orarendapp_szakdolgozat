@@ -1,7 +1,16 @@
 package com.miroslav.orarend.pojo;
 
 import com.miroslav.orarend.constants.DayOfWeek;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -53,8 +62,4 @@ public class Lesson implements Serializable {
     @NotNull
     @Column(name = "end_time", nullable = false)
     private LocalTime endTime;
-
-    @ManyToOne
-    @JoinColumn(name = "room_id")
-    private Room room;
 }

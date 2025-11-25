@@ -11,7 +11,7 @@ import com.miroslav.orarend.pojo.Role;
 import com.miroslav.orarend.pojo.User;
 import com.miroslav.orarend.repository.PasswordResetTokenRepository;
 import com.miroslav.orarend.repository.UserRepository;
-import com.miroslav.orarend.service.EmailService;
+import com.miroslav.orarend.utils.OrarendUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -31,7 +31,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class AuthenticationService {
 
-    private final EmailService emailService;
+    private final OrarendUtil orarendUtil;
 
     private final UserRepository userRepository;
 
@@ -59,7 +59,7 @@ public class AuthenticationService {
         }
         userRepository.save(user);
         try {
-            emailService.sendEmail(
+            orarendUtil.sendEmail(
                     user.getEmail(),
                     "Sikeres regisztráció",
                     "\nKedves " + user.getUniqueName() + ", örömmel üdvözöljük az "
@@ -112,7 +112,7 @@ public class AuthenticationService {
 
                 passwordResetTokenRepository.save(passwordResetToken);
 
-                emailService.sendEmail(
+                orarendUtil.sendEmail(
                         presentUser.getEmail(),
                         "Jelszó visszaállítás",
                         "Kedves " + presentUser.getUniqueName() +
@@ -151,7 +151,7 @@ public class AuthenticationService {
 
             passwordResetTokenRepository.delete(passwordResetToken);
 
-            emailService.sendEmail(
+            orarendUtil.sendEmail(
                     user.getEmail(),
                     "Jelszó visszaállítás",
                     "Kedves " + user.getUniqueName() + ",\n\nA jelszavad sikeresen meg lett változtatva."

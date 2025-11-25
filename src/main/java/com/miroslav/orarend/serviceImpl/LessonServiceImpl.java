@@ -7,13 +7,12 @@ import com.miroslav.orarend.mapper.LessonMapper;
 import com.miroslav.orarend.pojo.Lesson;
 import com.miroslav.orarend.pojo.User;
 import com.miroslav.orarend.repository.LessonRepository;
-import com.miroslav.orarend.repository.UserRepository;
 import com.miroslav.orarend.service.LessonService;
 import com.miroslav.orarend.serviceImpl.validator.LessonValidator;
+import com.miroslav.orarend.utils.OrarendUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -25,17 +24,14 @@ public class LessonServiceImpl implements LessonService {
 
     private final LessonRepository repository;
     private final LessonMapper lessonMapper;
-    private final UserRepository userRepository;
     private final LessonValidator lessonValidator;
+    private final OrarendUtil orarendUtil;
 
-    // CREATE
     @Override
     public ResponseEntity<String> createLesson(LessonInputDTO dto) {
         Lesson input = lessonMapper.toEntity(dto);
 
-        User user = userRepository.findByEmail(
-                SecurityContextHolder.getContext().getAuthentication().getName()
-        ).orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
+        User user = orarendUtil.getAuthenticatedUser();
 
         input.setUser(user);
 
@@ -51,15 +47,12 @@ public class LessonServiceImpl implements LessonService {
         return ResponseEntity.ok("Lesson created");
     }
 
-    // UPDATE (PUT)
     @Override
     public ResponseEntity<String> updateLesson(Long lessonId, LessonInputDTO dto) {
         Lesson lessonToUpdate = repository.findById(lessonId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Lesson not found"));
 
-        User user = userRepository.findByEmail(
-                SecurityContextHolder.getContext().getAuthentication().getName()
-        ).orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
+        User user = orarendUtil.getAuthenticatedUser();
 
         if (!lessonToUpdate.getUser().getId().equals(user.getId())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not allowed to edit this lesson");
@@ -75,15 +68,12 @@ public class LessonServiceImpl implements LessonService {
         return ResponseEntity.ok("Lesson updated");
     }
 
-    // PATCH (részleges update)
     @Override
     public ResponseEntity<String> patchLesson(Long lessonId, LessonPatchDTO dto) {
         Lesson lessonToUpdate = repository.findById(lessonId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Lesson not found"));
 
-        User user = userRepository.findByEmail(
-                SecurityContextHolder.getContext().getAuthentication().getName()
-        ).orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
+        User user = orarendUtil.getAuthenticatedUser();
 
         if (!lessonToUpdate.getUser().getId().equals(user.getId())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not allowed to modify this lesson");
@@ -99,12 +89,9 @@ public class LessonServiceImpl implements LessonService {
         return ResponseEntity.ok("Lesson patched");
     }
 
-    // GET (egyetlen lesson lekérése)
     @Override
     public ResponseEntity<LessonOutputDTO> getLesson(Long lessonId) {
-        User user = userRepository.findByEmail(
-                SecurityContextHolder.getContext().getAuthentication().getName()
-        ).orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
+        User user = orarendUtil.getAuthenticatedUser();
 
         Lesson lesson = repository.findById(lessonId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Lesson not found"));
@@ -117,12 +104,9 @@ public class LessonServiceImpl implements LessonService {
         return ResponseEntity.ok(output);
     }
 
-    // DELETE
     @Override
     public ResponseEntity<String> deleteLesson(Long lessonId) {
-        User user = userRepository.findByEmail(
-                SecurityContextHolder.getContext().getAuthentication().getName()
-        ).orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
+        User user = orarendUtil.getAuthenticatedUser();
 
         Lesson lesson = repository.findById(lessonId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Lesson not found"));
@@ -135,12 +119,9 @@ public class LessonServiceImpl implements LessonService {
         return ResponseEntity.ok("Lesson deleted");
     }
 
-    // GET ALL by user
     @Override
     public ResponseEntity<List<LessonOutputDTO>> getAllByUser() {
-        User user = userRepository.findByEmail(
-                SecurityContextHolder.getContext().getAuthentication().getName()
-        ).orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
+        User user = orarendUtil.getAuthenticatedUser();
 
         List<Lesson> lessons = repository.findByUser(user);
 

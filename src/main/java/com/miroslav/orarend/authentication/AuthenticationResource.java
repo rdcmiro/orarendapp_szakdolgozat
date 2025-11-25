@@ -7,13 +7,19 @@ import com.miroslav.orarend.authentication.entities.AuthenticationResponse;
 import com.miroslav.orarend.dto.input.UserInputDTO;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
 @CrossOrigin(origins = "http://localhost:4200")
+@Slf4j
 public class AuthenticationResource {
 
     private final AuthenticationService authenticationService;
@@ -29,9 +35,9 @@ public class AuthenticationResource {
         try {
             return ResponseEntity.ok(authenticationService.authenticate(request));
         }catch (Exception e) {
-            e.printStackTrace();
+            log.error(e.getMessage());
+            return (ResponseEntity<AuthenticationResponse>) ResponseEntity.internalServerError();
         }
-        return (ResponseEntity<AuthenticationResponse>) ResponseEntity.internalServerError();
     }
 
     @PostMapping("/forgotPassword")
@@ -39,9 +45,9 @@ public class AuthenticationResource {
         try {
             return ResponseEntity.ok(String.valueOf(authenticationService.forgotPassword(inputDTO)));
         }catch (Exception e) {
-            e.printStackTrace();
+            log.error(e.getMessage());
+            return (ResponseEntity<String>) ResponseEntity.internalServerError();
         }
-        return (ResponseEntity<String>) ResponseEntity.internalServerError();
     }
 
     @PostMapping("/resetPassword")
@@ -49,8 +55,8 @@ public class AuthenticationResource {
         try {
             return ResponseEntity.ok(String.valueOf(authenticationService.resetPassword(inputDTO)));
         }catch (Exception e) {
-            e.printStackTrace();
+            log.error(e.getMessage());
+            return (ResponseEntity<String>) ResponseEntity.internalServerError();
         }
-        return (ResponseEntity<String>) ResponseEntity.internalServerError();
     }
 }

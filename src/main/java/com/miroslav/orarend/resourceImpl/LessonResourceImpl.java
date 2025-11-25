@@ -5,11 +5,10 @@ import com.miroslav.orarend.dto.output.LessonOutputDTO;
 import com.miroslav.orarend.dto.patch.LessonPatchDTO;
 import com.miroslav.orarend.resource.LessonResource;
 import com.miroslav.orarend.service.LessonService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
@@ -17,31 +16,20 @@ import java.util.List;
 
 
 @RestController
-@CrossOrigin(
-        origins = "http://localhost:4200",
-        allowedHeaders = {"Authorization", "Content-Type"},
-        methods = {
-                RequestMethod.GET,
-                RequestMethod.POST,
-                RequestMethod.PUT,
-                RequestMethod.DELETE,
-                RequestMethod.PATCH,
-                RequestMethod.OPTIONS
-        }
-)
+@Slf4j
+@RequiredArgsConstructor
 public class LessonResourceImpl implements LessonResource {
 
-    @Autowired
-    private LessonService lessonService;
+    private final LessonService lessonService;
 
     @Override
     public ResponseEntity<String> createLesson(LessonInputDTO dto) {
         try {
             return lessonService.createLesson(dto);
         } catch (Exception e){
-            e.printStackTrace();
+            log.warn("Hiba óra felvétele közben" + e.getMessage());
+            return ResponseEntity.internalServerError().body("Error");
         }
-        return ResponseEntity.internalServerError().body("Error");
     }
 
     @Override
@@ -49,9 +37,9 @@ public class LessonResourceImpl implements LessonResource {
         try {
             return lessonService.updateLesson(lessonId, dto);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.warn("Hiba az óra frissítése közben" + e.getMessage());
+            return ResponseEntity.internalServerError().body("Error");
         }
-        return ResponseEntity.internalServerError().body("Error");
     }
 
     @Override
@@ -59,9 +47,9 @@ public class LessonResourceImpl implements LessonResource {
         try {
             return lessonService.patchLesson(lessonId, dto);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.warn("Hiba a tanóra PATCH frissítésekor" + e.getMessage());
+            return ResponseEntity.internalServerError().body("Error");
         }
-        return ResponseEntity.internalServerError().body("Error");
     }
 
     @Override
@@ -69,9 +57,9 @@ public class LessonResourceImpl implements LessonResource {
         try {
             return lessonService.getLesson(lessonId);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.warn("Hiba a tanóra lekérésekor" + e.getMessage());
+            return new ResponseEntity<> (HttpStatus.BAD_REQUEST);
         }
-        return new ResponseEntity<> (HttpStatus.BAD_REQUEST);
     }
 
     @Override
@@ -79,9 +67,10 @@ public class LessonResourceImpl implements LessonResource {
         try {
             return lessonService.deleteLesson(lessonId);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.warn("Hiba a tanóra törlésekor" + e.getMessage());
+            return ResponseEntity.internalServerError().body("Error");
         }
-        return ResponseEntity.internalServerError().body("Error");
+
     }
 
     @Override
@@ -89,8 +78,8 @@ public class LessonResourceImpl implements LessonResource {
         try{
             return lessonService.getAllByUser();
         }catch (Exception e){
-            e.printStackTrace();
+            log.warn("Hiba a tanórák lekérésekor" + e.getMessage());
+            return ResponseEntity.internalServerError().body(new ArrayList<>());
         }
-        return ResponseEntity.internalServerError().body(new ArrayList<>());
     }
 }

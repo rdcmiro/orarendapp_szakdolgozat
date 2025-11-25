@@ -5,24 +5,25 @@ import com.miroslav.orarend.dto.output.FileEntityOutputDTO;
 import com.miroslav.orarend.pojo.FileEntity;
 import com.miroslav.orarend.pojo.User;
 import com.miroslav.orarend.resource.FileResource;
+import com.miroslav.orarend.service.AiService;
 import com.miroslav.orarend.service.FileService;
-import com.miroslav.orarend.service.OllamaService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/files")
 @RequiredArgsConstructor
+@Slf4j
 public class FileResourceImpl implements FileResource {
 
     private final FileService fileService;
-    private final OllamaService ollamaService;
+    private final AiService aiService;
 
     @Override
     public ResponseEntity<?> uploadFile(MultipartFile file, Long lessonId, Authentication authentication) {
@@ -31,7 +32,8 @@ public class FileResourceImpl implements FileResource {
             FileEntity saved = fileService.saveFile(file, user, lessonId);
             return ResponseEntity.ok(saved);
         } catch (Exception e) {
-            return ResponseEntity.internalServerError().body("❌ Feltöltés sikertelen: " + e.getMessage());
+            log.warn("Feltöltés sikertelen: " + e.getMessage());
+            return ResponseEntity.internalServerError().body("Feltöltés sikertelen: " + e.getMessage());
         }
     }
 
@@ -39,10 +41,11 @@ public class FileResourceImpl implements FileResource {
     public ResponseEntity<?> summarizeFile(Long id) {
         try {
             String text = fileService.extractTextFromFile(id);
-            String summary = ollamaService.summarizeText(text);
+            String summary = aiService.summarizeText(text);
             return ResponseEntity.ok(summary);
         } catch (Exception e) {
-            return ResponseEntity.internalServerError().body("⚠️ Hiba az összefoglalás során: " + e.getMessage());
+            log.warn("Összefoglalás sikertelen: " + e.getMessage());
+            return ResponseEntity.internalServerError().body("Hiba az összefoglalás során: " + e.getMessage());
         }
     }
 
@@ -51,6 +54,7 @@ public class FileResourceImpl implements FileResource {
         try {
             return fileService.deleteFile(id);
         }catch (Exception e){
+            log.warn("Sikertelen törlés" + e.getMessage());
             return ResponseEntity.internalServerError().body("Sikertelen törlés");
         }
     }
@@ -60,6 +64,7 @@ public class FileResourceImpl implements FileResource {
         try {
             return fileService.getAllByUser();
         }catch (Exception e){
+            log.warn("Hiba a felhasználó fájljainak lekérése során" + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -70,7 +75,8 @@ public class FileResourceImpl implements FileResource {
             User user = (User) authentication.getPrincipal();
             return fileService.downloadFile(id, user);
         } catch (Exception e) {
-            return ResponseEntity.internalServerError().body("❌ Letöltési hiba: " + e.getMessage());
+            log.warn("Hiba a letöltés közben" + e.getMessage());
+            return ResponseEntity.internalServerError().body("Letöltési hiba: " + e.getMessage());
         }
     }
 

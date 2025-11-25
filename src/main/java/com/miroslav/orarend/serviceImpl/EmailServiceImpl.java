@@ -1,28 +1,30 @@
 package com.miroslav.orarend.serviceImpl;
 
+import com.miroslav.orarend.pojo.User;
 import com.miroslav.orarend.service.EmailService;
+import com.miroslav.orarend.utils.OrarendUtil;
 import lombok.RequiredArgsConstructor;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.scheduling.annotation.Async;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class EmailServiceImpl implements EmailService {
 
-    private final JavaMailSender mailSender;
+    private final OrarendUtil orarendUtil;
 
-    @Async
-    public void sendEmail(String to, String subject, String body) {
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo(to);
-        message.setSubject(subject);
-        message.setText(body);
-        message.setFrom("orarendalkalmazasszakdolgozat@gmail.com");
-
-        System.out.println("📧 Sending mail to " + to + " with subject: " + subject);
-
-        mailSender.send(message); // <-- ez a legfontosabb!
+    @Override
+    public ResponseEntity<String> sendToUser(String body, String subject) {
+        try {
+            User user = orarendUtil.getAuthenticatedUser();
+            orarendUtil.sendEmail(user.getEmail(), body, subject);
+            return ResponseEntity.ok("Email sent");
+        } catch (Exception e) {
+            log.warn(e.getMessage());
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }

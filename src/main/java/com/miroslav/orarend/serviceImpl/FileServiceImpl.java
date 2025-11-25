@@ -6,8 +6,8 @@ import com.miroslav.orarend.pojo.FileEntity;
 import com.miroslav.orarend.pojo.Lesson;
 import com.miroslav.orarend.pojo.User;
 import com.miroslav.orarend.repository.FileRepository;
-import com.miroslav.orarend.repository.UserRepository;
 import com.miroslav.orarend.service.FileService;
+import com.miroslav.orarend.utils.OrarendUtil;
 import lombok.RequiredArgsConstructor;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
@@ -19,7 +19,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
@@ -37,8 +36,8 @@ import java.util.List;
 public class FileServiceImpl implements FileService {
 
     private final FileRepository fileRepository;
-    private final UserRepository userRepository;
     private final FileEntityMapper fileEntityMapper;
+    private final OrarendUtil orarendUtil;
 
     @Value("${app.upload-dir}")
     private String uploadDir;
@@ -95,9 +94,7 @@ public class FileServiceImpl implements FileService {
 
     @Override
     public ResponseEntity<List<FileEntityOutputDTO>> getAllByUser() {
-        User user = userRepository.findByEmail(
-                SecurityContextHolder.getContext().getAuthentication().getName()
-        ).orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
+        User user = orarendUtil.getAuthenticatedUser();
 
         List<FileEntity> files = fileRepository.findAllByUser(user);
 
@@ -110,9 +107,7 @@ public class FileServiceImpl implements FileService {
 
     @Override
     public ResponseEntity<?> deleteFile(Long id) {
-        User user = userRepository.findByEmail(
-                SecurityContextHolder.getContext().getAuthentication().getName()
-        ).orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
+        User user = orarendUtil.getAuthenticatedUser();
 
         FileEntity file = fileRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "File not found"));

@@ -4,11 +4,10 @@ import com.miroslav.orarend.dto.input.LessonInputDTO;
 import com.miroslav.orarend.dto.output.LessonOutputDTO;
 import com.miroslav.orarend.dto.patch.LessonPatchDTO;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-@Service
+
 public interface LessonService {
     ResponseEntity<String> createLesson(LessonInputDTO dto);
 

@@ -1,7 +1,6 @@
 package com.miroslav.orarend.dto.patch;
 
 import com.miroslav.orarend.constants.DayOfWeek;
-
 import lombok.Data;
 
 import java.time.LocalTime;

@@ -8,8 +8,6 @@ import java.util.List;
 
 public interface ToDoRepository extends JpaRepository<ToDo, Long> {
 
-    ToDo findByUser(User user);
-
     boolean existsByTitleAndUser(String title, User user);
 
     List<ToDo> findAllByUser(User user);

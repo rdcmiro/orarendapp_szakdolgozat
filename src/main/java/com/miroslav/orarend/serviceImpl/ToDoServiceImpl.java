@@ -7,14 +7,13 @@ import com.miroslav.orarend.mapper.ToDoMapper;
 import com.miroslav.orarend.pojo.ToDo;
 import com.miroslav.orarend.pojo.User;
 import com.miroslav.orarend.repository.ToDoRepository;
-import com.miroslav.orarend.repository.UserRepository;
 import com.miroslav.orarend.service.ToDoService;
 import com.miroslav.orarend.serviceImpl.validator.ToDoValidator;
+import com.miroslav.orarend.utils.OrarendUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -27,15 +26,13 @@ public class ToDoServiceImpl implements ToDoService {
 
     private final ToDoRepository toDoRepository;
     private final ToDoMapper toDoMapper;
-    private final UserRepository userRepository;
     private final ToDoValidator toDoValidator;
+    private final OrarendUtil orarendUtil;
 
     @Override
     public ResponseEntity<String> createToDo(ToDoInputDTO toDoInputDTO) {
         ToDo input = toDoMapper.toEntity(toDoInputDTO);
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
+        User user = orarendUtil.getAuthenticatedUser();
         input.setUser(user);
         if(!toDoValidator.doesToDoAlreadyExistsByTitle(input.getTitle(), user))
         {
@@ -52,9 +49,7 @@ public class ToDoServiceImpl implements ToDoService {
         ToDo todo = toDoRepository.findById(toDoId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "ToDo not found"));
 
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
+        User user = orarendUtil.getAuthenticatedUser();
 
         if (!todo.getUser().getId().equals(user.getId())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not allowed to edit this ToDo");
@@ -79,9 +74,7 @@ public class ToDoServiceImpl implements ToDoService {
 
     @Override
     public ResponseEntity<String> patchToDo(Long id, ToDoPatchDTO toDoPatchDTO) {
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
+        User user = orarendUtil.getAuthenticatedUser();
 
         ToDo todo = toDoRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "ToDo not found"));
@@ -116,9 +109,7 @@ public class ToDoServiceImpl implements ToDoService {
 
     @Override
     public ResponseEntity<ToDoOutputDTO> getToDo(Long toDoId) {
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
+        User user = orarendUtil.getAuthenticatedUser();
 
         ToDo todo = toDoRepository.findById(toDoId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "ToDo not found"));
@@ -133,9 +124,7 @@ public class ToDoServiceImpl implements ToDoService {
 
     @Override
     public ResponseEntity<String> deleteToDo(Long toDoId) {
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
+        User user = orarendUtil.getAuthenticatedUser();
 
         ToDo todo = toDoRepository.findById(toDoId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "ToDo not found"));
@@ -150,15 +139,8 @@ public class ToDoServiceImpl implements ToDoService {
 
     @Override
     public ResponseEntity<List<ToDoOutputDTO>> getAllUserToDos() {
-        User currentUser = userRepository
-                .findByEmail(SecurityContextHolder.getContext().getAuthentication().getName())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
-
-        List<ToDo> toDoListByUser = toDoRepository.findAllByUser(currentUser);
-        List<ToDoOutputDTO> result = toDoListByUser.stream()
-                .map(toDoMapper::toOutputDto)
-                .toList();
-
+        User currentUser = orarendUtil.getAuthenticatedUser();
+        List<ToDoOutputDTO> result = orarendUtil.getAllToDosForPlan(currentUser);
         return ResponseEntity.ok(result);
     }
 }

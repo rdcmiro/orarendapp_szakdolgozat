@@ -10,8 +10,6 @@ import java.util.List;
 
 public interface LessonRepository extends JpaRepository<Lesson, Long> {
 
-    boolean existsByStartTimeAndEndTime(LocalTime startTime, LocalTime endTime);
-
     boolean existsByStartTimeAndEndTimeAndDayOfWeekAndUser(LocalTime startTime, LocalTime endTime, DayOfWeek dayOfWeek, User user);
 
     List<Lesson> findByUser(User user);
