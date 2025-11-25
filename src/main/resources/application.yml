@@ -2,16 +2,13 @@ spring:
   application:
     name: Okos Orarend
 
+  profiles:
+    active: h2
+
   servlet:
     multipart:
       max-file-size: 25MB
       max-request-size: 25MB
-
-  datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3307/orarend
-    username: root
-    password: admin
 
   mail:
     host: smtp.gmail.com
@@ -24,15 +21,6 @@ spring:
           auth: true
           starttls:
             enable: true
-
-  jpa:
-    show-sql: true
-    hibernate:
-      ddl-auto: update
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.MySQL8Dialect
-        format_sql: true
 
 server:
   port: 8081
