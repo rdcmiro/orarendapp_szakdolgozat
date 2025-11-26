@@ -32,11 +32,6 @@ public class FileEntity {
 
     private LocalDateTime uploadedAt;
 
-
-    @ManyToOne
-    @JoinColumn(name = "lesson_id")
-    private Lesson lesson;
-
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;

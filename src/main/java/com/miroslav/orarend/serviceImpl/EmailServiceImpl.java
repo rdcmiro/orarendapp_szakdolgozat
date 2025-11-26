@@ -20,7 +20,7 @@ public class EmailServiceImpl implements EmailService {
     public ResponseEntity<String> sendToUser(String body, String subject) {
         try {
             User user = orarendUtil.getAuthenticatedUser();
-            orarendUtil.sendEmail(user.getEmail(), body, subject);
+            orarendUtil.sendEmail(user.getEmail(), subject, body);
             return ResponseEntity.ok("Email sent");
         } catch (Exception e) {
             log.warn(e.getMessage());

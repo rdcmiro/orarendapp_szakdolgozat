@@ -1,4 +1,3 @@
-// src/main/java/com/miroslav/orarend/config/GeminiClientConfig.java
 package com.miroslav.orarend.config;
 
 import com.google.genai.Client;

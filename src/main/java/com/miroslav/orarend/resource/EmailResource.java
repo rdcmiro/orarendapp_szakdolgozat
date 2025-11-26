@@ -9,6 +9,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 public interface EmailResource {
 
     @PostMapping("/sendToUser")
-    ResponseEntity<String> sendToUser(@RequestParam String body, String subject);
+    ResponseEntity<String> sendToUser(@RequestParam String body, @RequestParam String subject);
 
 }

@@ -3,12 +3,12 @@ package com.miroslav.orarend.serviceImpl;
 import com.miroslav.orarend.dto.output.FileEntityOutputDTO;
 import com.miroslav.orarend.mapper.FileEntityMapper;
 import com.miroslav.orarend.pojo.FileEntity;
-import com.miroslav.orarend.pojo.Lesson;
 import com.miroslav.orarend.pojo.User;
 import com.miroslav.orarend.repository.FileRepository;
 import com.miroslav.orarend.service.FileService;
 import com.miroslav.orarend.utils.OrarendUtil;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
@@ -27,12 +27,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class FileServiceImpl implements FileService {
 
     private final FileRepository fileRepository;
@@ -56,12 +58,6 @@ public class FileServiceImpl implements FileService {
         fe.setFilePath(target.toString());
         fe.setUploadedAt(LocalDateTime.now());
         fe.setUser(user);
-
-        if (lessonId != null) {
-            Lesson lesson = new Lesson();
-            lesson.setId(lessonId);
-            fe.setLesson(lesson);
-        }
 
         return fileRepository.save(fe);
     }
@@ -107,16 +103,32 @@ public class FileServiceImpl implements FileService {
 
     @Override
     public ResponseEntity<?> deleteFile(Long id) {
+        System.out.println("fájl törlése, id = " + id);
         User user = orarendUtil.getAuthenticatedUser();
-
         FileEntity file = fileRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "File not found"));
-
         if (!file.getUser().getId().equals(user.getId())) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not allowed to delete this lesson");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not allowed to delete this file");
         }
-
+        try {
+            Path filePath;
+            if (file.getFilePath() != null && !file.getFilePath().isBlank()) {
+                filePath = Paths.get(file.getFilePath());
+            } else {
+                filePath = Paths.get("uploads").resolve(file.getFilename());
+            }
+            Files.deleteIfExists(filePath);
+            System.out.println("Fájlrendszerből is törölve: " + filePath.toAbsolutePath());
+        } catch (IOException e) {
+            log.error(e.getMessage());
+            throw new ResponseStatusException(
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                    "Could not delete physical file",
+                    e
+            );
+        }
         fileRepository.delete(file);
+
         return ResponseEntity.ok("File deleted");
     }
 
