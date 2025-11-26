@@ -1,5 +1,6 @@
 package com.miroslav.orarend.resourceImpl;
 
+import com.miroslav.orarend.dto.input.EmailRequestDTO;
 import com.miroslav.orarend.resource.EmailResource;
 import com.miroslav.orarend.service.EmailService;
 import lombok.RequiredArgsConstructor;
@@ -16,9 +17,9 @@ public class EmailResourceImpl implements EmailResource {
     private final EmailService emailService;
 
     @Override
-    public ResponseEntity<String> sendToUser(String body, String subject) {
+    public ResponseEntity<String> sendToUser(EmailRequestDTO dto) {
         try{
-            return emailService.sendToUser(body, subject);
+            return emailService.sendToUser(dto);
         }catch (Exception e) {
             log.warn("Hiba a tartalom elküldésekor" + e.getMessage());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);

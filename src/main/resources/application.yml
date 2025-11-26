@@ -3,7 +3,7 @@ spring:
     name: Okos Orarend
 
   profiles:
-    active: h2
+    active: mysql
 
   servlet:
     multipart:
@@ -35,7 +35,7 @@ gemini:
   enabled: true
   model: gemini-2.5-flash
   temperature: 0.3
-  maxOutputTokens: 512
+  maxOutputTokens: 4096
   chunkSize: 8000
   chunkOverlap: 400
   enableGoogleSearch: false

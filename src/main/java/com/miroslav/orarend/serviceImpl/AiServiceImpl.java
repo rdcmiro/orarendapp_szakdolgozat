@@ -27,7 +27,7 @@ public class AiServiceImpl implements AiService {
     @Value("${gemini.model:gemini-2.5-flash}")
     private String model;
 
-    @Value("${gemini.maxOutputTokens:512}")
+    @Value("${gemini.maxOutputTokens:4096}")
     private int maxOutputTokens;
 
     @Value("${gemini.temperature:0.3}")
@@ -58,7 +58,6 @@ public class AiServiceImpl implements AiService {
             if (out == null || out.isBlank()) return "⚠️ Üres válasz érkezett az AI-tól.";
 
             out = out.replaceAll("\\s+\\n", "\n").replaceAll("\\n{3,}", "\n\n").trim();
-            if (out.length() > 2000) out = out.substring(0, 2000) + "…";
             return out;
 
         } catch (Exception e) {
@@ -80,7 +79,8 @@ public class AiServiceImpl implements AiService {
 
         try {
             String prompt = "Kérlek készíts ezekhez a teendőkhöz tanulási tervet a felhasználó " +
-                    "számára. Minden a tervhez szükséges" +
+                    "számára. Mivel itt egy fix funkciót végzel egy appban, így semmiképp se kérdezz vissza." +
+                    " Minden a tervhez szükséges" +
                     "információt megtalálsz ezekben a JSON objektumokban.:\n\n" + toDos;
 
             GenerateContentConfig cfg = GenerateContentConfig.builder()
@@ -95,7 +95,6 @@ public class AiServiceImpl implements AiService {
             if (out == null || out.isBlank()) return "⚠️ Üres válasz érkezett az AI-tól.";
 
             out = out.replaceAll("\\s+\\n", "\n").replaceAll("\\n{3,}", "\n\n").trim();
-            if (out.length() > 2000) out = out.substring(0, 2000) + "…";
             return out;
 
         } catch (Exception e) {

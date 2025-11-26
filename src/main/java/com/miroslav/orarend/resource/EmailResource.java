@@ -1,14 +1,15 @@
 package com.miroslav.orarend.resource;
 
+import com.miroslav.orarend.dto.input.EmailRequestDTO;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
 @RequestMapping("/sendOut")
 public interface EmailResource {
 
     @PostMapping("/sendToUser")
-    ResponseEntity<String> sendToUser(@RequestParam String body, @RequestParam String subject);
+    ResponseEntity<String> sendToUser(@RequestBody EmailRequestDTO dto);
 
 }
